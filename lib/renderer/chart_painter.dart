@@ -2,10 +2,11 @@ import 'dart:async' show StreamSink;
 
 import 'package:flutter/material.dart';
 import 'package:k_chart/utils/number_util.dart';
+
+import '../chart_style.dart';
+import '../entity/info_window_entity.dart';
 import '../entity/k_line_entity.dart';
 import '../utils/date_format_util.dart';
-import '../entity/info_window_entity.dart';
-
 import 'base_chart_painter.dart';
 import 'base_chart_renderer.dart';
 import 'main_renderer.dart';
@@ -24,29 +25,51 @@ class ChartPainter extends BaseChartPainter {
   int fixedLength;
   List<int> maDayList;
 
-  ChartPainter(
-      {@required datas,
-      @required scaleX,
-      @required scrollX,
-      @required isLongPass,
-      @required selectX,
-      mainState,
-      secondaryState,
-      this.sink,
-      bool isLine,
-      this.bgColor,
-      this.fixedLength,
-      this.maDayList})
-      : assert(bgColor == null || bgColor.length >= 2),
+  Paint selectPointPaint = Paint()
+    ..isAntiAlias = true
+    ..strokeWidth = 0.5
+    ..color = ChartColors.selectFillColor;
+
+  Paint selectorBorderPaint = Paint()
+    ..isAntiAlias = true
+    ..strokeWidth = 0.5
+    ..style = PaintingStyle.stroke
+    ..color = ChartColors.selectBorderColor;
+
+  Paint lastPriceBackgroundPaintUp = Paint()
+    ..isAntiAlias = true
+    ..style = PaintingStyle.fill
+    ..color = ChartColors.upColorDark;
+
+  Paint lastPriceBackgroundPaintDown = Paint()
+    ..isAntiAlias = true
+    ..style = PaintingStyle.fill
+    ..color = ChartColors.dnColorDark;
+
+  ChartPainter({
+    @required datas,
+    @required scaleX,
+    @required scrollX,
+    @required isLongPass,
+    @required selectX,
+    mainState,
+    secondaryState,
+    this.sink,
+    bool isLine,
+    this.bgColor,
+    this.fixedLength,
+    this.maDayList,
+  })  : assert(bgColor == null || bgColor.length >= 2),
         super(
-            datas: datas,
-            scaleX: scaleX,
-            scrollX: scrollX,
-            isLongPress: isLongPass,
-            selectX: selectX,
-            mainState: mainState,
-            secondaryState: secondaryState,
-            isLine: isLine);
+          datas: datas,
+          scaleX: scaleX,
+          scrollX: scrollX,
+          isLongPress: isLongPass,
+          selectX: selectX,
+          mainState: mainState,
+          secondaryState: secondaryState,
+          isLine: isLine,
+        );
 
   @override
   void initChartRenderer() {
@@ -129,10 +152,22 @@ class ChartPainter extends BaseChartPainter {
       mMainRenderer?.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
       mVolRenderer?.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
       mSecondaryRenderer?.drawChart(
-          lastPoint, curPoint, lastX, curX, size, canvas);
+        lastPoint,
+        curPoint,
+        lastX,
+        curX,
+        size,
+        canvas,
+      );
     }
 
-    if (isLongPress == true) drawCrossLine(canvas, size);
+    if (isLongPress == true) {
+      drawCrossLine(canvas, size);
+    }
+
+    drawLastPriceLine(canvas, size, datas.last);
+    drawLastPriceLineText(canvas, size, datas.last);
+
     canvas.restore();
   }
 
@@ -173,22 +208,15 @@ class ChartPainter extends BaseChartPainter {
 //    }
   }
 
-  Paint selectPointPaint = Paint()
-    ..isAntiAlias = true
-    ..strokeWidth = 0.5
-    ..color = ChartColors.selectFillColor;
-  Paint selectorBorderPaint = Paint()
-    ..isAntiAlias = true
-    ..strokeWidth = 0.5
-    ..style = PaintingStyle.stroke
-    ..color = ChartColors.selectBorderColor;
-
   @override
   void drawCrossLineText(Canvas canvas, Size size) {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
 
-    TextPainter tp = getTextPainter(point.close, Colors.white);
+    TextPainter tp = getTextPainter(
+      ChartFormats.moneyFormat.format(point.close),
+      Colors.white,
+    );
     double textHeight = tp.height;
     double textWidth = tp.width;
 
@@ -295,39 +323,76 @@ class ChartPainter extends BaseChartPainter {
     }
   }
 
-  ///画交叉线
   void drawCrossLine(Canvas canvas, Size size) {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
     Paint paintY = Paint()
-      ..color = Colors.white12
+      ..color = Colors.white54
       ..strokeWidth = ChartStyle.vCrossWidth
       ..isAntiAlias = true;
     double x = getX(index);
     double y = getMainY(point.close);
-    // k线图竖线
-    canvas.drawLine(Offset(x, mTopPadding),
-        Offset(x, size.height - mBottomPadding), paintY);
+    // Vertical line
+    canvas.drawLine(
+      Offset(x, mTopPadding),
+      Offset(x, size.height - mBottomPadding),
+      paintY,
+    );
 
     Paint paintX = Paint()
-      ..color = Colors.white
+      ..color = Colors.white54
       ..strokeWidth = ChartStyle.hCrossWidth
       ..isAntiAlias = true;
-    // k线图横线
-    canvas.drawLine(Offset(-mTranslateX, y),
-        Offset(-mTranslateX + mWidth / scaleX, y), paintX);
+    // Horizontal line
+    canvas.drawLine(
+      Offset(-mTranslateX, y),
+      Offset(-mTranslateX + mWidth / scaleX, y),
+      paintX,
+    );
     canvas.drawCircle(Offset(x, y), 2.0, paintX);
   }
 
+  void drawLastPriceLine(Canvas canvas, Size size, KLineEntity point) {
+    double y = getMainY(point.close);
+
+    // Horizontal line
+    Paint paintX = Paint()
+      ..color =
+          point.open > point.close ? ChartColors.dnColor : ChartColors.upColor
+      ..strokeWidth = ChartStyle.hCrossWidth
+      ..isAntiAlias = true;
+    canvas.drawLine(
+      Offset(-mTranslateX, y),
+      Offset(-mTranslateX + mWidth / scaleX, y),
+      paintX,
+    );
+  }
+
+  void drawLastPriceLineText(Canvas canvas, Size size, KLineEntity point) {
+    TextPainter tp = getTextPainter(
+      ChartFormats.moneyFormat.format(point.close),
+      point.open > point.close ? ChartColors.dnColor : ChartColors.upColor,
+    );
+    double y = getMainY(point.close);
+    tp.paint(canvas, Offset(mWidth - tp.width, y - tp.height - 2));
+  }
+
   TextPainter getTextPainter(text, [color = ChartColors.defaultTextColor]) {
-    TextSpan span = TextSpan(text: "$text", style: getTextStyle(color));
-    TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
+    TextSpan span = TextSpan(
+      text: "$text",
+      style: getTextStyle(color),
+    );
+    TextPainter tp = TextPainter(
+      text: span,
+      textDirection: TextDirection.ltr,
+    );
     tp.layout();
     return tp;
   }
 
-  String getDate(int date) =>
-      dateFormat(DateTime.fromMillisecondsSinceEpoch(date), mFormats);
+  String getDate(int date) {
+    return dateFormat(DateTime.fromMillisecondsSinceEpoch(date), mFormats);
+  }
 
   double getMainY(double y) => mMainRenderer?.getY(y) ?? 0.0;
 }
