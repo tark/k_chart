@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:k_chart/flutter_k_chart.dart';
+
 import 'chart_style.dart';
 import 'entity/info_window_entity.dart';
 import 'entity/k_line_entity.dart';
@@ -12,6 +13,7 @@ enum MainState { MA, BOLL, NONE }
 enum SecondaryState { MACD, KDJ, RSI, WR, NONE }
 
 class TimeFormat {
+  static const List<String> MONTH_DATE_COMMA_YEAR = [mm, ' ', dd, ', ', yyyy];
   static const List<String> YEAR_MONTH_DAY = [yyyy, '-', mm, '-', dd];
   static const List<String> YEAR_MONTH_DAY_WITH_HOUR = [
     yyyy,
@@ -33,6 +35,7 @@ class KChartWidget extends StatefulWidget {
   final bool isLine;
   final bool isChinese;
   final List<String> timeFormat;
+
   //当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
   final Function(bool) onLoadMore;
   final List<Color> bgColor;
@@ -155,18 +158,19 @@ class _KChartWidgetState extends State<KChartWidget>
           CustomPaint(
             size: Size(double.infinity, double.infinity),
             painter: ChartPainter(
-                datas: widget.datas,
-                scaleX: mScaleX,
-                scrollX: mScrollX,
-                selectX: mSelectX,
-                isLongPass: isLongPress,
-                mainState: widget.mainState,
-                secondaryState: widget.secondaryState,
-                isLine: widget.isLine,
-                sink: mInfoWindowStream?.sink,
-                bgColor: widget.bgColor,
-                fixedLength: widget.fixedLength,
-                maDayList: widget.maDayList),
+              datas: widget.datas,
+              scaleX: mScaleX,
+              scrollX: mScrollX,
+              selectX: mSelectX,
+              isLongPass: isLongPress,
+              mainState: widget.mainState,
+              secondaryState: widget.secondaryState,
+              isLine: widget.isLine,
+              sink: mInfoWindowStream?.sink,
+              bgColor: widget.bgColor,
+              fixedLength: widget.fixedLength,
+              maDayList: widget.maDayList,
+            ),
           ),
           _buildInfoDialog()
         ],
@@ -193,11 +197,17 @@ class _KChartWidgetState extends State<KChartWidget>
 
   void _onFling(double x) {
     _controller = AnimationController(
-        duration: Duration(milliseconds: widget.flingTime), vsync: this);
+      duration: Duration(milliseconds: widget.flingTime),
+      vsync: this,
+    );
     aniX = null;
-    aniX = Tween<double>(begin: mScrollX, end: x * widget.flingRatio + mScrollX)
-        .animate(
-            CurvedAnimation(parent: _controller, curve: widget.flingCurve));
+    aniX = Tween<double>(
+      begin: mScrollX,
+      end: x * widget.flingRatio + mScrollX,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: widget.flingCurve,
+    ));
     aniX.addListener(() {
       mScrollX = aniX.value;
       if (mScrollX <= 0) {
@@ -251,68 +261,112 @@ class _KChartWidgetState extends State<KChartWidget>
 
   Widget _buildInfoDialog() {
     return StreamBuilder<InfoWindowEntity>(
-        stream: mInfoWindowStream?.stream,
-        builder: (context, snapshot) {
-          if (!isLongPress ||
-              widget.isLine == true ||
-              !snapshot.hasData ||
-              snapshot.data.kLineEntity == null) return Container();
-          KLineEntity entity = snapshot.data.kLineEntity;
-          double upDown = entity.change ?? entity.close - entity.open;
-          double upDownPercent = entity.ratio ?? (upDown / entity.open) * 100;
-          infos = [
-            getDate(entity.time),
-            entity.open.toStringAsFixed(widget.fixedLength),
-            entity.high.toStringAsFixed(widget.fixedLength),
-            entity.low.toStringAsFixed(widget.fixedLength),
-            entity.close.toStringAsFixed(widget.fixedLength),
-            "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(widget.fixedLength)}",
-            "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-            entity.amount.toInt().toString()
-          ];
-          return Container(
-            margin: EdgeInsets.only(
-                left: snapshot.data.isLeft ? 4 : mWidth - mWidth / 3 - 4,
-                top: 25),
-            width: mWidth / 3,
-            decoration: BoxDecoration(
-                color: ChartColors.selectFillColor,
-                border: Border.all(
-                    color: ChartColors.selectBorderColor, width: 0.5)),
-            child: ListView.builder(
-              padding: EdgeInsets.all(4),
-              itemCount: infoNamesCN.length,
-              itemExtent: 14.0,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return _buildItem(infos[index],
-                    widget.isChinese ? infoNamesCN[index] : infoNamesEN[index]);
-              },
+      stream: mInfoWindowStream?.stream,
+      builder: (context, snapshot) {
+        if (!isLongPress ||
+            widget.isLine == true ||
+            !snapshot.hasData ||
+            snapshot.data.kLineEntity == null) {
+          return Container();
+        }
+
+        KLineEntity entity = snapshot.data.kLineEntity;
+        double upDown = entity.change ?? entity.close - entity.open;
+        double upDownPercent = entity.ratio ?? (upDown / entity.open) * 100;
+
+        infos = [
+          getDate(entity.time),
+          ChartFormats.moneyFormat.format(entity.open),
+          ChartFormats.moneyFormat.format(entity.high),
+          ChartFormats.moneyFormat.format(entity.low),
+          ChartFormats.moneyFormat.format(entity.close),
+          "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(widget.fixedLength)}",
+          "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
+          ChartFormats.numberFormatShort.format(entity.amount),
+        ];
+
+        return Container(
+          margin: EdgeInsets.only(
+            left: snapshot.data.isLeft ? 4 : mWidth - mWidth / 3 - 4,
+            top: 25,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: 3.0,
+          ),
+          width: mWidth / 3,
+          decoration: BoxDecoration(
+            color: ChartColors.selectFillColor,
+            border: Border.all(
+              color: ChartColors.selectBorderColor,
+              width: 0.5,
             ),
-          );
-        });
+            borderRadius: BorderRadius.circular(2.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black38,
+                blurRadius: 10.0, // has the effect of softening the shadow
+                spreadRadius: 3.0, // has the effect of extending the shadow
+                offset: Offset(
+                  2.0, // horizontal, move right 10
+                  2.0, // vertical, move down 10
+                ),
+              )
+            ],
+          ),
+          child: ListView.builder(
+            padding: EdgeInsets.all(4),
+            itemCount: infoNamesCN.length,
+            itemExtent: 14.0,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return _buildItem(
+                infos[index],
+                widget.isChinese ? infoNamesCN[index] : infoNamesEN[index],
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildItem(String info, String infoName) {
     Color color = Colors.white;
-    if (info.startsWith("+"))
+    if (info.startsWith("+")) {
       color = Colors.green;
-    else if (info.startsWith("-"))
+    } else if (info.startsWith("-")) {
       color = Colors.red;
-    else
+    } else {
       color = Colors.white;
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Expanded(
-            child: Text("$infoName",
-                style: const TextStyle(color: Colors.white, fontSize: 10.0))),
-        Text(info, style: TextStyle(color: color, fontSize: 10.0)),
+          child: Text(
+            "$infoName",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 9.0,
+            ),
+          ),
+        ),
+        Text(
+          info,
+          style: TextStyle(
+            color: color,
+            fontSize: 9.0,
+          ),
+        ),
       ],
     );
   }
 
-  String getDate(int date) =>
-      dateFormat(DateTime.fromMillisecondsSinceEpoch(date), widget.timeFormat);
+  String getDate(int date) {
+    return dateFormat(
+      DateTime.fromMillisecondsSinceEpoch(date),
+      widget.timeFormat,
+    );
+  }
 }
