@@ -1,12 +1,15 @@
 import 'dart:math';
-export 'package:flutter/material.dart'
-    show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
+
 import 'package:flutter/material.dart'
     show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
 import 'package:k_chart/utils/date_format_util.dart';
+
+import '../chart_style.dart' show ChartStyle;
 import '../entity/k_line_entity.dart';
 import '../k_chart_widget.dart';
-import '../chart_style.dart' show ChartStyle;
+
+export 'package:flutter/material.dart'
+    show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
 
 abstract class BaseChartPainter extends CustomPainter {
   static double maxScrollX = 0.0;
@@ -84,9 +87,12 @@ abstract class BaseChartPainter extends CustomPainter {
       drawChart(canvas, size);
       drawRightText(canvas);
       drawDate(canvas, size);
-      if (isLongPress == true) drawCrossLineText(canvas, size);
+      if (isLongPress == true) {
+        drawCrossLineText(canvas, size);
+      }
       drawText(canvas, datas?.last, 5);
       drawMaxAndMin(canvas);
+      drawLastPriceLineText(canvas, size, datas.last);
     }
     canvas.restore();
   }
@@ -117,6 +123,8 @@ abstract class BaseChartPainter extends CustomPainter {
   //交叉线值
   void drawCrossLineText(Canvas canvas, Size size);
 
+  void drawLastPriceLineText(Canvas canvas, Size size, KLineEntity point);
+
   void initRect(Size size) {
     double mainHeight = secondaryState != SecondaryState.NONE
         ? mDisplayHeight * 0.6
@@ -134,7 +142,7 @@ abstract class BaseChartPainter extends CustomPainter {
 
   calculateValue() {
     if (datas == null || datas.isEmpty) return;
-    maxScrollX = getMinTranslateX().abs();
+    maxScrollX = getMinTranslateX().abs() + 100.0;
     setTranslateXFromScrollX(scrollX);
     mStartIndex = indexOfTranslateX(xToTranslateX(0));
     mStopIndex = indexOfTranslateX(xToTranslateX(mWidth));
@@ -294,20 +302,14 @@ abstract class BaseChartPainter extends CustomPainter {
       (translateX + mTranslateX) * scaleX;
 
   TextStyle getTextStyle(Color color) {
-    return TextStyle(fontSize: 10.0, color: color);
+    return TextStyle(
+      fontSize: 8.0,
+      color: color,
+    );
   }
 
   @override
   bool shouldRepaint(BaseChartPainter oldDelegate) {
     return true;
-//    return oldDelegate.datas != datas ||
-//        oldDelegate.datas?.length != datas?.length ||
-//        oldDelegate.scaleX != scaleX ||
-//        oldDelegate.scrollX != scrollX ||
-//        oldDelegate.isLongPress != isLongPress ||
-//        oldDelegate.selectX != selectX ||
-//        oldDelegate.isLine != isLine ||
-//        oldDelegate.mainState != mainState ||
-//        oldDelegate.secondaryState != secondaryState;
   }
 }
