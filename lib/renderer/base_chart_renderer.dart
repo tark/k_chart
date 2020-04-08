@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 export '../chart_style.dart';
 
 abstract class BaseChartRenderer<T> {
@@ -16,14 +17,15 @@ abstract class BaseChartRenderer<T> {
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
     ..strokeWidth = 0.5
-    ..color = Color(0xff4c5c74);
+    ..color = Colors.white24;
 
-  BaseChartRenderer(
-      {@required this.chartRect,
-      @required this.maxValue,
-      @required this.minValue,
-      @required this.topPadding,
-      @required this.fixedLength}) {
+  BaseChartRenderer({
+    @required this.chartRect,
+    @required this.maxValue,
+    @required this.minValue,
+    @required this.topPadding,
+    @required this.fixedLength,
+  }) {
     if (maxValue == minValue) {
       maxValue *= 1.5;
       minValue /= 2;
@@ -48,11 +50,23 @@ abstract class BaseChartRenderer<T> {
 
   void drawRightText(canvas, textStyle, int gridRows);
 
-  void drawChart(T lastPoint, T curPoint, double lastX, double curX, Size size,
-      Canvas canvas);
+  void drawChart(
+    T lastPoint,
+    T curPoint,
+    double lastX,
+    double curX,
+    Size size,
+    Canvas canvas,
+  );
 
-  void drawLine(double lastPrice, double curPrice, Canvas canvas, double lastX,
-      double curX, Color color) {
+  void drawLine(
+    double lastPrice,
+    double curPrice,
+    Canvas canvas,
+    double lastX,
+    double curX,
+    Color color,
+  ) {
     if (lastPrice == null || curPrice == null) {
       return;
     }
@@ -65,6 +79,9 @@ abstract class BaseChartRenderer<T> {
   }
 
   TextStyle getTextStyle(Color color) {
-    return TextStyle(fontSize: 10.0, color: color);
+    return TextStyle(
+      fontSize: 8.0,
+      color: color,
+    );
   }
 }
