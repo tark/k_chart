@@ -166,8 +166,6 @@ class ChartPainter extends BaseChartPainter {
     }
 
     drawLastPriceLine(canvas, size, datas.last);
-    drawLastPriceLineText(canvas, size, datas.last);
-
     canvas.restore();
   }
 
@@ -355,6 +353,11 @@ class ChartPainter extends BaseChartPainter {
   void drawLastPriceLine(Canvas canvas, Size size, KLineEntity point) {
     double y = getMainY(point.close);
 
+    // don't render it out of the main rect
+    if (y < mMainRect.top || y > mMainRect.bottom) {
+      return;
+    }
+
     // Horizontal line
     Paint paintX = Paint()
       ..color =
@@ -369,11 +372,17 @@ class ChartPainter extends BaseChartPainter {
   }
 
   void drawLastPriceLineText(Canvas canvas, Size size, KLineEntity point) {
+    double y = getMainY(point.close);
+
+    // don't render it out of the main rect
+    if (y < mMainRect.top || y > mMainRect.bottom) {
+      return;
+    }
+
     TextPainter tp = getTextPainter(
       ChartFormats.moneyFormat.format(point.close),
       point.open > point.close ? ChartColors.dnColor : ChartColors.upColor,
     );
-    double y = getMainY(point.close);
     tp.paint(canvas, Offset(mWidth - tp.width, y - tp.height - 2));
   }
 
