@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:path_drawing/path_drawing.dart';
 
+import '../chart_style.dart';
 import '../entity/candle_entity.dart';
 import '../k_chart_widget.dart' show MainState;
 import 'base_chart_renderer.dart';
@@ -25,15 +27,24 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     ..style = PaintingStyle.fill
     ..isAntiAlias = true;
 
-  MainRenderer(Rect mainRect, double maxValue, double minValue,
-      double topPadding, this.state, this.isLine, int fixedLength,
-      [this.maDayList = const [5, 10, 20]])
-      : super(
-            chartRect: mainRect,
-            maxValue: maxValue,
-            minValue: minValue,
-            topPadding: topPadding,
-            fixedLength: fixedLength) {
+  MainRenderer(
+    Rect mainRect,
+    double maxValue,
+    double minValue,
+    double topPadding,
+    this.state,
+    this.isLine,
+    int fixedLength, {
+    this.maDayList = const [5, 10, 20],
+    String fontFamily,
+  }) : super(
+          chartRect: mainRect,
+          maxValue: maxValue,
+          minValue: minValue,
+          topPadding: topPadding,
+          fixedLength: fixedLength,
+          fontFamily: fontFamily,
+        ) {
     _contentRect = Rect.fromLTRB(
         chartRect.left,
         chartRect.top + _contentPadding,
@@ -59,26 +70,29 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         children: [
           if (data.up != 0)
             TextSpan(
-              text: "BOLL:${format(data.mb)}    ",
+              text: "BOLL: ${ChartFormats.money.format(data.mb)}    ",
               style: getTextStyle(ChartColors.ma5Color),
             ),
           if (data.mb != 0)
             TextSpan(
-              text: "UB:${format(data.up)}    ",
+              text: "UB: ${ChartFormats.money.format(data.up)}    ",
               style: getTextStyle(ChartColors.ma10Color),
             ),
           if (data.dn != 0)
             TextSpan(
-              text: "LB:${format(data.dn)}    ",
-              style: getTextStyle(ChartColors.ma30Color),
+              text: "LB: ${ChartFormats.money.format(data.dn)}    ",
+              style: getTextStyle(ChartColors.ma20Color),
             ),
         ],
       );
     }
     if (span == null) return;
-    TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
+    TextPainter tp = TextPainter(
+      text: span,
+      textDirection: TextDirection.ltr,
+    );
     tp.layout();
-    tp.paint(canvas, Offset(x, chartRect.top - topPadding));
+    tp.paint(canvas, Offset(x, chartRect.top + rightTextAxisLinePadding));
   }
 
   @override
@@ -108,7 +122,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
       TextSpan span = TextSpan(
-        text: ChartFormats.moneyFormat.format(value),
+        text: ChartFormats.moneyShort.format(value),
         style: textStyle,
       );
       TextPainter tp = TextPainter(
@@ -120,16 +134,21 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         tp.paint(
           canvas,
           Offset(
-            chartRect.width - tp.width,
-            topPadding,
+            chartRect.width - tp.width - rightTextScreenSidePadding,
+            topPadding + rightTextAxisLinePadding,
           ),
         );
       } else {
         tp.paint(
           canvas,
           Offset(
-            chartRect.width - tp.width,
-            rowSpace * i - tp.height + topPadding,
+            chartRect.width - tp.width - rightTextScreenSidePadding,
+            topPadding +
+                rowSpace * i +
+                rightTextAxisLinePadding -
+                (i == gridRows
+                    ? tp.height + 10
+                    : 0), // the last number should be above the line
           ),
         );
       }
@@ -140,17 +159,36 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   void drawGrid(Canvas canvas, int gridRows, int gridColumns) {
     double rowSpace = chartRect.height / gridRows;
     for (int i = 0; i <= gridRows; i++) {
-      canvas.drawLine(
-        Offset(0, rowSpace * i + topPadding),
-        Offset(chartRect.width, rowSpace * i + topPadding),
+      canvas.drawPath(
+        dashPath(
+          Path()
+            ..moveTo(0, rowSpace * i + topPadding)
+            ..lineTo(chartRect.width, rowSpace * i + topPadding),
+          dashArray: CircularIntervalList<double>([3.0, 3.0]),
+        ),
         gridPaint,
       );
     }
+
     double columnSpace = chartRect.width / gridColumns;
     for (int i = 0; i <= columnSpace; i++) {
-      canvas.drawLine(
-        Offset(columnSpace * i, topPadding / 3),
-        Offset(columnSpace * i, chartRect.bottom),
+      // shift is for the last and first vertical lines to keep it's full
+      // width inside the screen
+      var shift = 0;
+      if (i == 0) {
+        shift = 1;
+      }
+      if (i == columnSpace) {
+        shift = -1;
+      }
+
+      canvas.drawPath(
+        dashPath(
+          Path()
+            ..moveTo(columnSpace * i + shift, topPadding / 3)
+            ..lineTo(columnSpace * i + shift, chartRect.bottom),
+          dashArray: CircularIntervalList<double>([3.0, 3.0]),
+        ),
         gridPaint,
       );
     }
@@ -222,8 +260,14 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         break;
       }
       if (lastPoint.maValueList[i] != 0) {
-        drawLine(lastPoint.maValueList[i], curPoint.maValueList[i], canvas,
-            lastX, curX, ChartColors.getMAColor(i));
+        drawLine(
+          lastPoint.maValueList[i],
+          curPoint.maValueList[i],
+          canvas,
+          lastX,
+          curX,
+          ChartColors.getMAColor(i),
+        );
       }
     }
   }
@@ -245,7 +289,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     }
     if (lastPoint.dn != 0) {
       drawLine(lastPoint.dn, curPoint.dn, canvas, lastX, curX,
-          ChartColors.ma30Color);
+          ChartColors.ma20Color);
     }
   }
 
@@ -259,22 +303,35 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     if (open > close) {
       chartPaint.color = ChartColors.upColor;
       canvas.drawRect(
-          Rect.fromLTRB(curX - r, close, curX + r, open), chartPaint);
+        Rect.fromLTRB(curX - r, close, curX + r, open),
+        chartPaint,
+      );
       canvas.drawRect(
-          Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
+        Rect.fromLTRB(curX - lineR, high, curX + lineR, low),
+        chartPaint,
+      );
     } else if (close > open) {
       chartPaint.color = ChartColors.dnColor;
       canvas.drawRect(
-          Rect.fromLTRB(curX - r, open, curX + r, close), chartPaint);
+        Rect.fromLTRB(curX - r, open, curX + r, close),
+        chartPaint,
+      );
       canvas.drawRect(
-          Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
+        Rect.fromLTRB(curX - lineR, high, curX + lineR, low),
+        chartPaint,
+      );
     } else {
       chartPaint.color = ChartColors.upColor;
       canvas.drawLine(
-          Offset(curX - r, open), Offset(curX + r, open), chartPaint);
+        Offset(curX - r, open),
+        Offset(curX + r, open),
+        chartPaint,
+      );
       if (high != low) {
         canvas.drawRect(
-            Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
+          Rect.fromLTRB(curX - lineR, high, curX + lineR, low),
+          chartPaint,
+        );
       }
     }
   }
@@ -284,8 +341,10 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (int i = 0; i < data.maValueList.length; i++) {
       if (data.maValueList[i] != 0) {
         var item = TextSpan(
-            text: "MA${maDayList[i]}:${format(data.maValueList[i])}    ",
-            style: getTextStyle(ChartColors.getMAColor(i)));
+          text:
+              "MA${maDayList[i]}: ${ChartFormats.money.format(data.maValueList[i])}    ",
+          style: getTextStyle(ChartColors.getMAColor(i)),
+        );
         result.add(item);
       }
     }
