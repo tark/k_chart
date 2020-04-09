@@ -100,6 +100,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 fixedLength: 2,
                 timeFormat: TimeFormat.YEAR_MONTH_DAY,
                 isChinese: false,
+                bgColor: [
+                  Color(0xFF121128),
+                  Color(0xFF121128),
+                  Color(0xFF121128)
+                ],
               ),
             ),
             if (showLoading)
