@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:k_chart/utils/render_util.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 import '../chart_style.dart';
@@ -37,6 +38,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     int fixedLength, {
     this.maDayList = const [5, 10, 20],
     String fontFamily,
+    List<Color> bgColor,
   }) : super(
           chartRect: mainRect,
           maxValue: maxValue,
@@ -44,6 +46,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           topPadding: topPadding,
           fixedLength: fixedLength,
           fontFamily: fontFamily,
+          bgColor: bgColor,
         ) {
     _contentRect = Rect.fromLTRB(
         chartRect.left,
@@ -117,7 +120,12 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   }
 
   @override
-  void drawRightText(canvas, textStyle, int gridRows) {
+  void drawRightText(Canvas canvas, Size size, textStyle, int gridRows) {
+    canvas.drawRect(
+      Rect.fromLTRB(size.width - rightCoverWidth, 0, size.width, size.height),
+      backgroundPaint..color = bgColor?.elementAt(0) ?? ChartColors.background,
+    );
+
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
@@ -138,7 +146,14 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
             topPadding + rightTextAxisLinePadding,
           ),
         );
+        RenderUtil.drawDashedLine(
+          canvas,
+          Offset(chartRect.width - rightCoverWidth, topPadding),
+          Offset(chartRect.width, topPadding),
+          gridPaint,
+        );
       } else {
+        // the last number should be above the line
         tp.paint(
           canvas,
           Offset(
@@ -146,13 +161,24 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
             topPadding +
                 rowSpace * i +
                 rightTextAxisLinePadding -
-                (i == gridRows
-                    ? tp.height + 10
-                    : 0), // the last number should be above the line
+                (i == gridRows ? tp.height + 10 : 0),
           ),
+        );
+        RenderUtil.drawDashedLine(
+          canvas,
+          Offset(chartRect.width - rightCoverWidth, topPadding + rowSpace * i),
+          Offset(chartRect.width, topPadding + rowSpace * i),
+          gridPaint,
         );
       }
     }
+
+    RenderUtil.drawDashedLine(
+      canvas,
+      Offset(chartRect.width - rightCoverWidth, 0),
+      Offset(chartRect.width - rightCoverWidth, chartRect.height),
+      gridPaint,
+    );
   }
 
   @override
