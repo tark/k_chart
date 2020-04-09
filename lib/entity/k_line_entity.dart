@@ -60,4 +60,8 @@ class KLineEntity extends KEntity {
   String toString() {
     return 'MarketModel{open: $open, high: $high, low: $low, close: $close, vol: $vol, time: $time, amount: $amount, ratio: $ratio, change: $change}';
   }
+
+  @override
+  bool operator ==(o) => o is KLineEntity && o.time == time;
+
 }
