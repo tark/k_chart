@@ -2,22 +2,29 @@ import 'package:flutter/material.dart';
 
 export '../chart_style.dart';
 
+const rightTextAxisLinePadding = 5.0;
+const rightTextScreenSidePadding = 4.0;
+
 abstract class BaseChartRenderer<T> {
   double maxValue, minValue;
   double scaleY;
   double topPadding;
   Rect chartRect;
   int fixedLength;
+  final String fontFamily;
+
   Paint chartPaint = Paint()
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
     ..strokeWidth = 1.0
     ..color = Colors.red;
+
   Paint gridPaint = Paint()
+    ..style = PaintingStyle.stroke
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
-    ..strokeWidth = 0.5
-    ..color = Colors.white24;
+    ..strokeWidth = 1.0
+    ..color = Colors.white10;
 
   BaseChartRenderer({
     @required this.chartRect,
@@ -25,6 +32,7 @@ abstract class BaseChartRenderer<T> {
     @required this.minValue,
     @required this.topPadding,
     @required this.fixedLength,
+    this.fontFamily,
   }) {
     if (maxValue == minValue) {
       maxValue *= 1.5;
@@ -82,6 +90,7 @@ abstract class BaseChartRenderer<T> {
     return TextStyle(
       fontSize: 8.0,
       color: color,
+      fontFamily: fontFamily,
     );
   }
 }
