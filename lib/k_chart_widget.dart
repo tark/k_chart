@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k_chart/flutter_k_chart.dart';
 
 import 'chart_style.dart';
 import 'entity/info_window_entity.dart';
 import 'entity/k_line_entity.dart';
+import 'formatter.dart';
 import 'renderer/chart_painter.dart';
 import 'utils/date_format_util.dart';
 
@@ -28,6 +30,13 @@ class TimeFormat {
   ];
 }
 
+/// The offset which chart will do when user dragging to the right
+/// That mean when user drag to the very first value, it will allow
+/// graph to move a little bit more to make the first value be not
+/// at the very right. So we have space between right end and the last value
+/// This is more readable.
+const _rightScrollingOffset = -50.0;
+
 class KChartWidget extends StatefulWidget {
   final List<KLineEntity> datas;
   final MainState mainState;
@@ -35,8 +44,10 @@ class KChartWidget extends StatefulWidget {
   final bool isLine;
   final bool isChinese;
   final List<String> timeFormat;
+  final DateFormat dateFormat;
 
-  //当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
+  /// Called when the screen is scrolled to the end,
+  /// returns TRUE if the right side, returns FALSE if the left side
   final Function(bool) onLoadMore;
   final List<Color> bgColor;
   final int fixedLength;
@@ -46,6 +57,21 @@ class KChartWidget extends StatefulWidget {
   final Curve flingCurve;
   final Function(bool) isOnDrag;
 
+  /// Used to draw a shortened int in difference places
+  /// like 100K instead of 100,000
+  final Formatter shortFormatter;
+
+  final String fontFamily;
+
+  final String wordVolume;
+  final String wordDate;
+  final String wordOpen;
+  final String wordHigh;
+  final String wordLow;
+  final String wordClose;
+  final String wordChange;
+  final String wordAmount;
+
   KChartWidget(
     this.datas, {
     this.mainState = MainState.MA,
@@ -53,6 +79,7 @@ class KChartWidget extends StatefulWidget {
     this.isLine,
     this.isChinese = true,
     this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
+    this.dateFormat,
     this.onLoadMore,
     this.bgColor,
     this.fixedLength,
@@ -61,6 +88,16 @@ class KChartWidget extends StatefulWidget {
     this.flingRatio = 0.5,
     this.flingCurve = Curves.decelerate,
     this.isOnDrag,
+    this.shortFormatter,
+    this.fontFamily,
+    this.wordVolume = 'Volume',
+    this.wordDate = 'Date',
+    this.wordOpen = 'Open',
+    this.wordHigh = 'High',
+    this.wordLow = 'Low',
+    this.wordClose = 'Close',
+    this.wordChange = 'Change',
+    this.wordAmount = 'Amount',
   }) : assert(maDayList != null);
 
   @override
@@ -69,19 +106,37 @@ class KChartWidget extends StatefulWidget {
 
 class _KChartWidgetState extends State<KChartWidget>
     with TickerProviderStateMixin {
+  //
   double mScaleX = 1.0, mScrollX = 0.0, mSelectX = 0.0;
   StreamController<InfoWindowEntity> mInfoWindowStream;
   double mWidth = 0;
   AnimationController _controller;
   Animation<double> aniX;
-
-  double getMinScrollX() {
-    return mScaleX;
-  }
-
   double _lastScale = 1.0;
   bool isScale = false, isDrag = false, isLongPress = false;
+  final List<String> infoNamesCN = [
+    "时间",
+    "开",
+    "高",
+    "低",
+    "收",
+    "涨跌额",
+    "涨跌幅",
+    "成交额"
+  ];
+  final List<String> infoNamesEN = [
+    "Date",
+    "Open",
+    "High",
+    "Low",
+    "Close",
+    "Change",
+    "Change%",
+    "Amount"
+  ];
+  List<String> infos;
 
+  //
   @override
   void initState() {
     super.initState();
@@ -115,14 +170,16 @@ class _KChartWidgetState extends State<KChartWidget>
       onHorizontalDragUpdate: (details) {
         if (isScale || isLongPress) return;
         mScrollX = (details.primaryDelta / mScaleX + mScrollX)
-            .clamp(0.0, ChartPainter.maxScrollX);
+            .clamp(_rightScrollingOffset, ChartPainter.maxScrollX);
         notifyChanged();
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         var velocity = details.velocity.pixelsPerSecond.dx;
         _onFling(velocity);
       },
-      onHorizontalDragCancel: () => _onDragChanged(false),
+      onHorizontalDragCancel: () {
+        _onDragChanged(false);
+      },
       onScaleStart: (_) {
         isScale = true;
       },
@@ -170,6 +227,9 @@ class _KChartWidgetState extends State<KChartWidget>
               bgColor: widget.bgColor,
               fixedLength: widget.fixedLength,
               maDayList: widget.maDayList,
+              shortFormatter: widget.shortFormatter,
+              fontFamily: widget.fontFamily,
+              wordVolume: widget.wordVolume,
             ),
           ),
           _buildInfoDialog()
@@ -178,6 +238,7 @@ class _KChartWidgetState extends State<KChartWidget>
     );
   }
 
+  //
   void _stopAnimation({bool needNotify = true}) {
     if (_controller != null && _controller.isAnimating) {
       _controller.stop();
@@ -210,8 +271,8 @@ class _KChartWidgetState extends State<KChartWidget>
     ));
     aniX.addListener(() {
       mScrollX = aniX.value;
-      if (mScrollX <= 0) {
-        mScrollX = 0;
+      if (mScrollX <= _rightScrollingOffset) {
+        mScrollX = _rightScrollingOffset;
         if (widget.onLoadMore != null) {
           widget.onLoadMore(true);
         }
@@ -237,28 +298,6 @@ class _KChartWidgetState extends State<KChartWidget>
 
   void notifyChanged() => setState(() {});
 
-  final List<String> infoNamesCN = [
-    "时间",
-    "开",
-    "高",
-    "低",
-    "收",
-    "涨跌额",
-    "涨跌幅",
-    "成交额"
-  ];
-  final List<String> infoNamesEN = [
-    "Date",
-    "Open",
-    "High",
-    "Low",
-    "Close",
-    "Change",
-    "Change%",
-    "Amount"
-  ];
-  List<String> infos;
-
   Widget _buildInfoDialog() {
     return StreamBuilder<InfoWindowEntity>(
       stream: mInfoWindowStream?.stream,
@@ -275,14 +314,26 @@ class _KChartWidgetState extends State<KChartWidget>
         double upDownPercent = entity.ratio ?? (upDown / entity.open) * 100;
 
         infos = [
-          getDate(entity.time),
-          ChartFormats.moneyFormat.format(entity.open),
-          ChartFormats.moneyFormat.format(entity.high),
-          ChartFormats.moneyFormat.format(entity.low),
-          ChartFormats.moneyFormat.format(entity.close),
+          _getDate(entity.time),
+          ChartFormats.money.format(entity.open),
+          ChartFormats.money.format(entity.high),
+          ChartFormats.money.format(entity.low),
+          ChartFormats.money.format(entity.close),
           "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(widget.fixedLength)}",
           "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-          ChartFormats.numberFormatShort.format(entity.amount),
+          ChartFormats.numberShort.format(entity.amount),
+        ];
+
+        final infoNames = [
+          widget.wordDate,
+          widget.wordOpen,
+          widget.wordHigh,
+          widget.wordLow,
+          widget.wordClose,
+          widget.wordDate,
+          widget.wordChange,
+          widget.wordChange + ', %',
+          widget.wordAmount,
         ];
 
         return Container(
@@ -321,7 +372,8 @@ class _KChartWidgetState extends State<KChartWidget>
             itemBuilder: (context, index) {
               return _buildItem(
                 infos[index],
-                widget.isChinese ? infoNamesCN[index] : infoNamesEN[index],
+                infoNames[index],
+                //widget.isChinese ? infoNamesCN[index] : infoNamesEN[index],
               );
             },
           ),
@@ -363,10 +415,14 @@ class _KChartWidgetState extends State<KChartWidget>
     );
   }
 
-  String getDate(int date) {
+  String _getDate(int date) {
     return dateFormat(
       DateTime.fromMillisecondsSinceEpoch(date),
       widget.timeFormat,
     );
+  }
+
+  double getMinScrollX() {
+    return mScaleX;
   }
 }
