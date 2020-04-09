@@ -28,7 +28,7 @@ abstract class BaseChartPainter extends CustomPainter {
   double mDisplayHeight, mWidth;
   double mTopPadding = 0.0;
   double mBottomPadding = 20.0;
-  double mChildPadding = 12.0;
+  double mChildPadding = 0.0;
   final int mGridRows = 4, mGridColumns = 4;
   int mStartIndex = 0, mStopIndex = 0;
   double mMainMaxValue = double.minPositive, mMainMinValue = double.maxFinite;
@@ -94,13 +94,14 @@ abstract class BaseChartPainter extends CustomPainter {
     drawGrid(canvas);
     if (datas != null && datas.isNotEmpty) {
       drawChart(canvas, size);
-      drawRightText(canvas);
+      drawRightText(canvas, size);
       drawDate(canvas, size);
       if (isLongPress == true) {
         drawCrossLineText(canvas, size);
       }
       drawText(canvas, datas?.last, 5);
       //drawMaxAndMin(canvas);
+      drawLastPriceLine(canvas, size, datas.last);
       drawLastPriceLineText(canvas, size, datas.last);
     }
     canvas.restore();
@@ -118,7 +119,7 @@ abstract class BaseChartPainter extends CustomPainter {
   void drawChart(Canvas canvas, Size size);
 
   //画右边值
-  void drawRightText(canvas);
+  void drawRightText(Canvas canvas, Size size);
 
   //画时间
   void drawDate(Canvas canvas, Size size);
@@ -133,6 +134,8 @@ abstract class BaseChartPainter extends CustomPainter {
   void drawCrossLineText(Canvas canvas, Size size);
 
   void drawLastPriceLineText(Canvas canvas, Size size, KLineEntity point);
+
+  void drawLastPriceLine(Canvas canvas, Size size, KLineEntity point);
 
   void initRect(Size size) {
     double mainHeight = secondaryState != SecondaryState.NONE
@@ -310,11 +313,12 @@ abstract class BaseChartPainter extends CustomPainter {
   double translateXtoX(double translateX) =>
       (translateX + mTranslateX) * scaleX;
 
-  TextStyle getTextStyle(Color color) {
+  TextStyle getTextStyle(Color color, {bool bold = false}) {
     return TextStyle(
       fontSize: 8.0,
       color: color,
       fontFamily: fontFamily,
+      fontWeight: bold ? FontWeight.bold : FontWeight.normal,
     );
   }
 
