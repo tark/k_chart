@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../chart_style.dart';
+
 export '../chart_style.dart';
 
 const rightTextAxisLinePadding = 5.0;
 const rightTextScreenSidePadding = 4.0;
+const rightCoverWidth = 40.0;
 
 abstract class BaseChartRenderer<T> {
   double maxValue, minValue;
@@ -12,6 +15,7 @@ abstract class BaseChartRenderer<T> {
   Rect chartRect;
   int fixedLength;
   final String fontFamily;
+  final List<Color> bgColor;
 
   Paint chartPaint = Paint()
     ..isAntiAlias = true
@@ -24,7 +28,12 @@ abstract class BaseChartRenderer<T> {
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
     ..strokeWidth = 1.0
-    ..color = Colors.white10;
+    ..color = Colors.white12;
+
+  Paint backgroundPaint = Paint()
+    ..isAntiAlias = true
+    ..style = PaintingStyle.fill
+    ..color = ChartColors.background;
 
   BaseChartRenderer({
     @required this.chartRect,
@@ -33,6 +42,7 @@ abstract class BaseChartRenderer<T> {
     @required this.topPadding,
     @required this.fixedLength,
     this.fontFamily,
+    this.bgColor,
   }) {
     if (maxValue == minValue) {
       maxValue *= 1.5;
@@ -56,7 +66,7 @@ abstract class BaseChartRenderer<T> {
 
   void drawText(Canvas canvas, T data, double x);
 
-  void drawRightText(canvas, textStyle, int gridRows);
+  void drawRightText(Canvas canvas, Size size, textStyle, int gridRows);
 
   void drawChart(
     T lastPoint,
