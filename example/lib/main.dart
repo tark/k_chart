@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:k_chart/flutter_k_chart.dart';
 import 'package:k_chart/k_chart_widget.dart';
-import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -33,9 +33,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<KLineEntity> datas;
   bool showLoading = true;
-  MainState _mainState = MainState.MA;
-  SecondaryState _secondaryState = SecondaryState.MACD;
-  bool isLine = true;
+  MainState _mainState = MainState.NONE;
+  SecondaryState _secondaryState = SecondaryState.NONE;
+  bool isLine = false;
   bool isChinese = true;
   List<DepthEntity> _bids, _asks;
 
@@ -86,7 +86,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xff17212F),
-//      appBar: AppBar(title: Text(widget.title)),
       body: ListView(
         children: <Widget>[
           Stack(children: <Widget>[
@@ -100,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 secondaryState: _secondaryState,
                 fixedLength: 2,
                 timeFormat: TimeFormat.YEAR_MONTH_DAY,
-                isChinese: isChinese,
+                isChinese: false,
               ),
             ),
             if (showLoading)
@@ -122,34 +121,131 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget buildButtons() {
-    return Wrap(
-      alignment: WrapAlignment.spaceEvenly,
-      children: <Widget>[
-        button("分时", onPressed: () => isLine = true),
-        button("k线", onPressed: () => isLine = false),
-        button("MA", onPressed: () => _mainState = MainState.MA),
-        button("BOLL", onPressed: () => _mainState = MainState.BOLL),
-        button("隐藏", onPressed: () => _mainState = MainState.NONE),
-        button("MACD", onPressed: () => _secondaryState = SecondaryState.MACD),
-        button("KDJ", onPressed: () => _secondaryState = SecondaryState.KDJ),
-        button("RSI", onPressed: () => _secondaryState = SecondaryState.RSI),
-        button("WR", onPressed: () => _secondaryState = SecondaryState.WR),
-        button("隐藏副视图", onPressed: () => _secondaryState = SecondaryState.NONE),
-        button("切换中英文", onPressed: () => isChinese = !isChinese),
+    return Column(
+      children: [
+        Wrap(
+          runSpacing: 6.0,
+          spacing: 6.0,
+          alignment: WrapAlignment.center,
+          children: [
+            button(
+              "Line",
+              onPressed: () => isLine = true,
+              selected: isLine,
+            ),
+            button(
+              "Bars",
+              onPressed: () => isLine = false,
+              selected: !isLine,
+            ),
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            top: 6.0,
+          ),
+        ),
+        Wrap(
+          runSpacing: 6.0,
+          spacing: 6.0,
+          alignment: WrapAlignment.center,
+          children: [
+            button(
+              "MACD",
+              onPressed: () => _secondaryState = SecondaryState.MACD,
+              selected: _mainState == MainState.MA,
+            ),
+            button(
+              "KDJ",
+              onPressed: () => _secondaryState = SecondaryState.KDJ,
+              selected: _secondaryState == SecondaryState.KDJ,
+            ),
+            button(
+              "RSI",
+              onPressed: () => _secondaryState = SecondaryState.RSI,
+              selected: _secondaryState == SecondaryState.RSI,
+            ),
+            button(
+              "WR",
+              onPressed: () => _secondaryState = SecondaryState.WR,
+              selected: _secondaryState == SecondaryState.WR,
+            ),
+            button(
+              "NONE",
+              onPressed: () => _secondaryState = SecondaryState.NONE,
+              selected: _secondaryState == SecondaryState.NONE,
+            ),
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            top: 6.0,
+          ),
+        ),
+        Wrap(
+          runSpacing: 6.0,
+          spacing: 6.0,
+          alignment: WrapAlignment.center,
+          children: [
+            button(
+              "MA",
+              onPressed: () => _mainState = MainState.MA,
+              selected: _mainState == MainState.MA,
+            ),
+            button(
+              "BOLL",
+              onPressed: () => _mainState = MainState.BOLL,
+              selected: _mainState == MainState.BOLL,
+            ),
+            button(
+              "NONE",
+              onPressed: () => _mainState = MainState.NONE,
+              selected: _mainState == MainState.NONE,
+            ),
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            top: 6.0,
+          ),
+        ),
+        Wrap(
+          runSpacing: 6.0,
+          spacing: 6.0,
+          alignment: WrapAlignment.center,
+          children: [
+            button(
+              isChinese ? "ZH" : 'EN',
+              onPressed: () => isChinese = !isChinese,
+              selected: true,
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget button(String text, {VoidCallback onPressed}) {
-    return FlatButton(
+  Widget button(String text, {VoidCallback onPressed, bool selected = false}) {
+    return SizedBox(
+      width: 50.0,
+      height: 30.0,
+      child: FlatButton(
+        padding: EdgeInsets.all(0.0),
         onPressed: () {
           if (onPressed != null) {
             onPressed();
             setState(() {});
           }
         },
-        child: Text("$text"),
-        color: Colors.blue);
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 12.0,
+          ),
+        ),
+        color: selected ? Colors.blue : Colors.blue.withOpacity(0.6),
+      ),
+    );
   }
 
   void getData(String period) {
