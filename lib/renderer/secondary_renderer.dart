@@ -1,23 +1,31 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+
 import '../entity/macd_entity.dart';
 import '../k_chart_widget.dart' show SecondaryState;
-
 import 'base_chart_renderer.dart';
 
 class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
   double mMACDWidth = ChartStyle.macdWidth;
   SecondaryState state;
 
-  SecondaryRenderer(Rect mainRect, double maxValue, double minValue,
-      double topPadding, this.state, int fixedLength)
-      : super(
-            chartRect: mainRect,
-            maxValue: maxValue,
-            minValue: minValue,
-            topPadding: topPadding,
-            fixedLength: fixedLength);
+  SecondaryRenderer(
+    Rect mainRect,
+    double maxValue,
+    double minValue,
+    double topPadding,
+    this.state,
+    int fixedLength, {
+    String fontFamily,
+  }) : super(
+          chartRect: mainRect,
+          maxValue: maxValue,
+          minValue: minValue,
+          topPadding: topPadding,
+          fixedLength: fixedLength,
+          fontFamily: fontFamily,
+        );
 
   @override
   void drawChart(MACDEntity lastPoint, MACDEntity curPoint, double lastX,
