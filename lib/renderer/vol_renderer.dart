@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:k_chart/formatter.dart';
+import 'package:k_chart/utils/render_util.dart';
 
+import '../chart_style.dart';
 import '../entity/volume_entity.dart';
 import '../renderer/base_chart_renderer.dart';
 import 'base_chart_renderer.dart';
@@ -31,6 +33,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     @required this.shortFormatter,
     @required this.wordVolume,
     String fontFamily,
+    List<Color> bgColor,
   }) : super(
           chartRect: mainRect,
           maxValue: maxValue,
@@ -38,6 +41,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
           topPadding: topPadding,
           fixedLength: fixedLength,
           fontFamily: fontFamily,
+          bgColor: bgColor,
         );
 
   @override
@@ -100,7 +104,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     TextSpan span = TextSpan(
       text: wordVolume,
       style: TextStyle(
-        fontSize: 10.0,
+        fontSize: ChartStyle.fontSize,
         color: Colors.white.withOpacity(0.5),
         fontWeight: FontWeight.bold,
       ),
@@ -111,6 +115,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     );
     tp.layout();
 
+    // Volume badge
     final yLinePlusPadding =
         chartRect.top - topPadding + rightTextAxisLinePadding;
     canvas.drawRRect(
@@ -125,7 +130,6 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
       ),
       _volumeBadgeBackgroundPaint,
     );
-
     tp.paint(
       canvas,
       Offset(
@@ -136,36 +140,75 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   }
 
   @override
-  void drawRightText(canvas, textStyle, int gridRows) {
-    TextSpan span = TextSpan(
-      text: shortFormatter != null
-          ? shortFormatter(maxValue.toInt())
-          : ChartFormats.numberShort.format(maxValue),
-      style: textStyle,
-    );
-    TextPainter tp = TextPainter(
-      text: span,
-      textDirection: TextDirection.ltr,
-    );
-    tp.layout();
-    tp.paint(
+  void drawRightText(Canvas canvas, Size size, textStyle, int gridRows) {
+    final values = [maxValue.toInt(), maxValue ~/ 2];
+
+    values.forEach((v) {
+      TextSpan span = TextSpan(
+        text: shortFormatter != null
+            ? shortFormatter(v)
+            : ChartFormats.numberShort.format(v),
+        style: textStyle,
+      );
+      TextPainter tp = TextPainter(
+        text: span,
+        textDirection: TextDirection.ltr,
+      );
+      tp.layout();
+      var lineY =
+          chartRect.top + chartRect.height * (1 - v / maxValue) - topPadding;
+      tp.paint(
+        canvas,
+        Offset(
+          chartRect.width - tp.width - rightTextScreenSidePadding,
+          lineY + rightTextAxisLinePadding,
+        ),
+      );
+      RenderUtil.drawDashedLine(
+        canvas,
+        Offset(chartRect.width - rightCoverWidth, lineY),
+        Offset(chartRect.width, lineY),
+        gridPaint,
+      );
+    });
+
+    RenderUtil.drawDashedLine(
       canvas,
-      Offset(
-        chartRect.width - tp.width - rightTextScreenSidePadding,
-        chartRect.top - topPadding + rightTextAxisLinePadding,
-      ),
+      Offset(chartRect.width - rightCoverWidth, chartRect.top),
+      Offset(chartRect.width - rightCoverWidth, chartRect.bottom),
+      gridPaint,
     );
   }
 
   @override
   void drawGrid(Canvas canvas, int gridRows, int gridColumns) {
-    canvas.drawLine(Offset(0, chartRect.bottom),
-        Offset(chartRect.width, chartRect.bottom), gridPaint);
+    final bottom = chartRect.bottom;
+    final top = chartRect.top;
+    final height = chartRect.height;
+    final width = chartRect.width;
+
+    RenderUtil.drawDashedLine(
+      canvas,
+      Offset(0, bottom),
+      Offset(width, bottom),
+      gridPaint,
+    );
+
+    RenderUtil.drawDashedLine(
+      canvas,
+      Offset(0, bottom - height / 2),
+      Offset(width, bottom - height / 2),
+      gridPaint,
+    );
+
     double columnSpace = chartRect.width / gridColumns;
     for (int i = 0; i <= columnSpace; i++) {
-      //vol垂直线
-      canvas.drawLine(Offset(columnSpace * i, chartRect.top - topPadding),
-          Offset(columnSpace * i, chartRect.bottom), gridPaint);
+      RenderUtil.drawDashedLine(
+        canvas,
+        Offset(columnSpace * i, top - topPadding),
+        Offset(columnSpace * i, bottom),
+        gridPaint,
+      );
     }
   }
 }
