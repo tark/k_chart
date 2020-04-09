@@ -51,12 +51,17 @@ class ChartPainter extends BaseChartPainter {
   Paint lastPriceBackgroundPaintUp = Paint()
     ..isAntiAlias = true
     ..style = PaintingStyle.fill
-    ..color = ChartColors.upColorDark;
+    ..color = ChartColors.upColor;
 
   Paint lastPriceBackgroundPaintDown = Paint()
     ..isAntiAlias = true
     ..style = PaintingStyle.fill
-    ..color = ChartColors.dnColorDark;
+    ..color = ChartColors.dnColor;
+
+  Paint lastPriceBackgroundPaintNeutral = Paint()
+    ..isAntiAlias = true
+    ..style = PaintingStyle.fill
+    ..color = Colors.white.withOpacity(0.8);
 
   ChartPainter({
     @required datas,
@@ -112,6 +117,7 @@ class ChartPainter extends BaseChartPainter {
       fixedLength,
       maDayList: maDayList,
       fontFamily: fontFamily,
+      bgColor: bgColor,
     );
     mVolRenderer ??= VolRenderer(
       mVolRect,
@@ -122,6 +128,7 @@ class ChartPainter extends BaseChartPainter {
       shortFormatter: shortFormatter,
       wordVolume: wordVolume,
       fontFamily: fontFamily,
+      bgColor: bgColor,
     );
     if (mSecondaryRect != null)
       mSecondaryRenderer ??= SecondaryRenderer(
@@ -132,6 +139,7 @@ class ChartPainter extends BaseChartPainter {
         secondaryState,
         fixedLength,
         fontFamily: fontFamily,
+        bgColor: bgColor,
       );
   }
 
@@ -141,7 +149,7 @@ class ChartPainter extends BaseChartPainter {
     Gradient mBgGradient = LinearGradient(
       begin: Alignment.bottomCenter,
       end: Alignment.topCenter,
-      colors: bgColor ?? [Color(0xff18191d), Color(0xff18191d)],
+      colors: bgColor ?? [ChartColors.background, ChartColors.background],
     );
     if (mMainRect != null) {
       Rect mainRect =
@@ -204,16 +212,15 @@ class ChartPainter extends BaseChartPainter {
       drawCrossLine(canvas, size);
     }
 
-    drawLastPriceLine(canvas, size, datas.last);
     canvas.restore();
   }
 
   @override
-  void drawRightText(canvas) {
+  void drawRightText(Canvas canvas, Size size) {
     var textStyle = getTextStyle(ChartColors.defaultTextColor);
-    mMainRenderer?.drawRightText(canvas, textStyle, mGridRows);
-    mVolRenderer?.drawRightText(canvas, textStyle, mGridRows);
-    mSecondaryRenderer?.drawRightText(canvas, textStyle, mGridRows);
+    mMainRenderer?.drawRightText(canvas, size, textStyle, mGridRows);
+    mVolRenderer?.drawRightText(canvas, size, textStyle, mGridRows);
+    mSecondaryRenderer?.drawRightText(canvas, size, textStyle, mGridRows);
   }
 
   @override
@@ -253,67 +260,100 @@ class ChartPainter extends BaseChartPainter {
 
     TextPainter tp = getTextPainter(
       ChartFormats.money.format(point.close),
-      Colors.white,
+      bgColor?.elementAt(0) ?? Colors.black,
+      true,
     );
     double textHeight = tp.height;
     double textWidth = tp.width;
 
-    double w1 = 5;
-    double w2 = 3;
-    double r = textHeight / 2 + w2;
+    double paddingXScreenSide = 3;
+    double paddingXNearPeak = 1;
+    double paddingXPeak = 6;
+    double paddingY = 2.5;
+    double verticalDiff = textHeight / 2 + paddingY;
+    double peakX;
     double y = getMainY(point.close);
-    double x;
+
     bool isLeft = false;
     if (translateXtoX(getX(index)) < mWidth / 2) {
       isLeft = false;
-      x = 1;
-      Path path = new Path();
-      path.moveTo(x, y - r);
-      path.lineTo(x, y + r);
-      path.lineTo(textWidth + 2 * w1, y + r);
-      path.lineTo(textWidth + 2 * w1 + w2, y);
-      path.lineTo(textWidth + 2 * w1, y - r);
-      path.close();
-      canvas.drawPath(path, selectPointPaint);
-      canvas.drawPath(path, selectorBorderPaint);
-      tp.paint(canvas, Offset(x + w1, y - textHeight / 2));
+
+      peakX =
+          textWidth + (paddingXScreenSide + paddingXNearPeak) + paddingXPeak;
+
+      canvas.drawPath(
+        Path()
+          ..moveTo(peakX, y)
+          ..lineTo(peakX - paddingXPeak, y + verticalDiff)
+          ..lineTo(0, y + verticalDiff)
+          ..lineTo(0, y - verticalDiff)
+          ..lineTo(peakX - paddingXPeak, y - verticalDiff)
+          ..close(),
+        lastPriceBackgroundPaintNeutral,
+      );
+
+      tp.paint(
+        canvas,
+        Offset(paddingXScreenSide, y - textHeight / 2),
+      );
     } else {
       isLeft = true;
-      x = mWidth - textWidth - 1 - 2 * w1 - w2;
-      Path path = new Path();
-      path.moveTo(x, y);
-      path.lineTo(x + w2, y + r);
-      path.lineTo(mWidth - 2, y + r);
-      path.lineTo(mWidth - 2, y - r);
-      path.lineTo(x + w2, y - r);
-      path.close();
-      canvas.drawPath(path, selectPointPaint);
-      canvas.drawPath(path, selectorBorderPaint);
-      tp.paint(canvas, Offset(x + w1 + w2, y - textHeight / 2));
+
+      peakX = mWidth -
+          textWidth -
+          (paddingXScreenSide + paddingXNearPeak) -
+          paddingXPeak;
+
+      canvas.drawPath(
+        Path()
+          ..moveTo(peakX, y)
+          ..lineTo(peakX + paddingXPeak, y + verticalDiff)
+          ..lineTo(mWidth, y + verticalDiff)
+          ..lineTo(mWidth, y - verticalDiff)
+          ..lineTo(peakX + paddingXPeak, y - verticalDiff)
+          ..close(),
+        lastPriceBackgroundPaintNeutral,
+      );
+      tp.paint(
+        canvas,
+        Offset(mWidth - tp.width - paddingXScreenSide, y - textHeight / 2),
+      );
     }
 
-    TextPainter dateTp = getTextPainter(getDate(point.time), Colors.white);
+    final datePaddingX = 5;
+    TextPainter dateTp = getTextPainter(
+      getDate(point.time),
+      bgColor.elementAt(0) ?? Colors.black,
+      true,
+    );
     textWidth = dateTp.width;
-    r = textHeight / 2;
-    x = translateXtoX(getX(index));
-    y = size.height - mBottomPadding;
+    textHeight = dateTp.height;
+    //var r = textHeight / 2 + paddingY;
 
-    if (x < textWidth + 2 * w1) {
-      x = 1 + textWidth / 2 + w1;
-    } else if (mWidth - x < textWidth + 2 * w1) {
-      x = mWidth - 1 - textWidth / 2 - w1;
+    // X center of the badge
+    var x = translateXtoX(getX(index));
+    // Y center of the badge
+    final badgeHeight = dateTp.height + paddingY * 2;
+    y = size.height - badgeHeight / 2 - (mBottomPadding - badgeHeight) / 2;
+
+    if (x < textWidth + 2 * datePaddingX) {
+      x = 1 + textWidth / 2 + datePaddingX;
+    } else if (mWidth - x < textWidth + 2 * datePaddingX) {
+      x = mWidth - 1 - textWidth / 2 - datePaddingX;
     }
-    double baseLine = textHeight / 2;
+    //double baseLine = textHeight / 2;
     canvas.drawRect(
-        Rect.fromLTRB(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1,
-            y + baseLine + r),
-        selectPointPaint);
-    canvas.drawRect(
-        Rect.fromLTRB(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1,
-            y + baseLine + r),
-        selectorBorderPaint);
+      Rect.fromLTRB(
+        x - textWidth / 2 - datePaddingX,
+        y - textHeight / 2 - paddingY,
+        x + textWidth / 2 + datePaddingX,
+        y + textHeight / 2 + paddingY,
+      ),
+      lastPriceBackgroundPaintNeutral,
+    );
 
-    dateTp.paint(canvas, Offset(x - textWidth / 2, y));
+    dateTp.paint(canvas, Offset(x - textWidth / 2, y - textHeight / 2));
+
     //长按显示这条数据详情
     sink?.add(InfoWindowEntity(point, isLeft));
   }
@@ -370,11 +410,39 @@ class ChartPainter extends BaseChartPainter {
       return;
     }
 
-    TextPainter tp = getTextPainter(
-      ChartFormats.money.format(point.close),
-      point.open > point.close ? ChartColors.dnColor : ChartColors.upColor,
+    TextPainter textPaint = getTextPainter(
+      ChartFormats.moneyShort.format(point.close),
+      bgColor?.elementAt(0) ?? Colors.black,
+      true,
     );
-    tp.paint(canvas, Offset(mWidth - tp.width, y - tp.height - 2));
+
+    double textHeight = textPaint.height;
+    double textWidth = textPaint.width;
+
+    double paddingXRight = 3;
+    double paddingXLeft = 1;
+    double paddingY = 2.5;
+    double peakPaddingX = 6;
+    double r = textHeight / 2 + paddingY;
+    double peakX;
+
+    peakX = mWidth - textWidth - (paddingXRight + paddingXLeft) - peakPaddingX;
+    Path path = new Path();
+    path.moveTo(peakX, y);
+    path.lineTo(peakX + peakPaddingX, y + r);
+    path.lineTo(mWidth, y + r);
+    path.lineTo(mWidth, y - r);
+    path.lineTo(peakX + peakPaddingX, y - r);
+    path.close();
+    canvas.drawPath(
+        path,
+        point.open > point.close
+            ? lastPriceBackgroundPaintDown
+            : lastPriceBackgroundPaintUp);
+    textPaint.paint(
+      canvas,
+      Offset(mWidth - textPaint.width - paddingXRight, y - textHeight / 2),
+    );
   }
 
   //
@@ -422,16 +490,23 @@ class ChartPainter extends BaseChartPainter {
       ..strokeWidth = ChartStyle.hCrossWidth
       ..isAntiAlias = true;
     canvas.drawLine(
-      Offset(-mTranslateX, y),
-      Offset(-mTranslateX + mWidth / scaleX, y),
+      Offset(0, y),
+      Offset(size.width, y),
       paintX,
     );
   }
 
-  TextPainter getTextPainter(text, [color = ChartColors.defaultTextColor]) {
+  TextPainter getTextPainter(
+    text, [
+    color = ChartColors.defaultTextColor,
+    bool bold = false,
+  ]) {
     TextSpan span = TextSpan(
       text: "$text",
-      style: getTextStyle(color),
+      style: getTextStyle(
+        color,
+        bold: bold,
+      ),
     );
     TextPainter tp = TextPainter(
       text: span,
