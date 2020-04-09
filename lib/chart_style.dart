@@ -6,9 +6,9 @@ class ChartColors {
 
   static const Color kLineColor = Color(0xff4C86CD);
   static const Color lineFillColor = Colors.white54;
-  static const Color ma5Color = Color(0xffC9B885);
-  static const Color ma10Color = Color(0xff6CB0A6);
-  static const Color ma30Color = Color(0xff9979C6);
+  static const Color ma5Color = Color(0xb2007AFF);
+  static const Color ma10Color = Color(0xb2ffffff);
+  static const Color ma20Color = Color(0xb2F7931A);
   static const Color upColor = Color(0xFF00B865);
   static const Color dnColor = Color(0xFFFF5D52);
   static const Color upColorDark = Color(0xFF009F4C);
@@ -44,7 +44,7 @@ class ChartColors {
         maColor = ma10Color;
         break;
       case 2:
-        maColor = ma30Color;
+        maColor = ma20Color;
         break;
     }
     return maColor;
@@ -58,13 +58,13 @@ class ChartStyle {
   static const double pointWidth = 11.0;
 
   //蜡烛宽度
-  static const double candleWidth = 8.5;
+  static const double candleWidth = 6.0;
 
   //蜡烛中间线的宽度
   static const double candleLineWidth = 1.0;
 
   //vol柱子宽度
-  static const double volWidth = 8.5;
+  static const double volWidth = 6.0;
 
   //macd柱子宽度
   static const double macdWidth = 3.0;
@@ -77,7 +77,8 @@ class ChartStyle {
 }
 
 class ChartFormats {
-  static final moneyFormat = NumberFormat('#,##0.00');
-  static final numberFormatShort = NumberFormat('#,##0');
-  static final dateFormat = DateFormat('dd MMM yyyy');
+  static final money = NumberFormat('#,##0.00');
+  static final moneyShort = NumberFormat('\$#,##0');
+  static final numberShort = NumberFormat('#,##0');
+  static final date = DateFormat('dd MMM yyyy');
 }
