@@ -18,6 +18,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
     this.state,
     int fixedLength, {
     String fontFamily,
+    List<Color> bgColor,
   }) : super(
           chartRect: mainRect,
           maxValue: maxValue,
@@ -25,6 +26,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
           topPadding: topPadding,
           fixedLength: fixedLength,
           fontFamily: fontFamily,
+          bgColor: bgColor,
         );
 
   @override
@@ -144,14 +146,16 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
   }
 
   @override
-  void drawRightText(canvas, textStyle, int gridRows) {
+  void drawRightText(Canvas canvas, Size size, textStyle, int gridRows) {
     TextPainter maxTp = TextPainter(
-        text: TextSpan(text: "${format(maxValue)}", style: textStyle),
-        textDirection: TextDirection.ltr);
+      text: TextSpan(text: "${format(maxValue)}", style: textStyle),
+      textDirection: TextDirection.ltr,
+    );
     maxTp.layout();
     TextPainter minTp = TextPainter(
-        text: TextSpan(text: "${format(minValue)}", style: textStyle),
-        textDirection: TextDirection.ltr);
+      text: TextSpan(text: "${format(minValue)}", style: textStyle),
+      textDirection: TextDirection.ltr,
+    );
     minTp.layout();
 
     maxTp.paint(canvas,
