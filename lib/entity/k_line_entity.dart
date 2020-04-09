@@ -63,5 +63,4 @@ class KLineEntity extends KEntity {
 
   @override
   bool operator ==(o) => o is KLineEntity && o.time == time;
-
 }
