@@ -34,6 +34,8 @@ class ChartColors {
   // The fill color of the background of the displayed value after selection
   static const Color selectFillColor = Color(0xFF1a193a);
 
+  static const background = Color(0xff18191d);
+
   static Color getMAColor(int index) {
     Color maColor = ma5Color;
     switch (index % 3) {
@@ -74,6 +76,8 @@ class ChartStyle {
 
   //水平交叉线宽度
   static const double hCrossWidth = 0.5;
+
+  static const fontSize = 10.0;
 }
 
 class ChartFormats {
