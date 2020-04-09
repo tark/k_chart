@@ -6,6 +6,7 @@ import 'package:k_chart/utils/number_util.dart';
 import '../chart_style.dart';
 import '../entity/info_window_entity.dart';
 import '../entity/k_line_entity.dart';
+import '../formatter.dart';
 import '../utils/date_format_util.dart';
 import 'base_chart_painter.dart';
 import 'base_chart_renderer.dart';
@@ -14,8 +15,11 @@ import 'secondary_renderer.dart';
 import 'vol_renderer.dart';
 
 class ChartPainter extends BaseChartPainter {
+  //
   static get maxScrollX => BaseChartPainter.maxScrollX;
-  BaseChartRenderer mMainRenderer, mVolRenderer, mSecondaryRenderer;
+  BaseChartRenderer mMainRenderer;
+  BaseChartRenderer mVolRenderer;
+  BaseChartRenderer mSecondaryRenderer;
   StreamSink<InfoWindowEntity> sink;
   Color upColor, dnColor;
   Color ma5Color, ma10Color, ma30Color;
@@ -24,6 +28,14 @@ class ChartPainter extends BaseChartPainter {
   List<Color> bgColor;
   int fixedLength;
   List<int> maDayList;
+
+  /// Used to draw a shortened int in the right text of the [VolRenderer]
+  /// like 100K instead of 100,000
+  final Formatter shortFormatter;
+
+  /// Used to write a word 'Volume' in the [VolRenderer] in a different languages
+  /// Should be sent from the parent project
+  final String wordVolume;
 
   Paint selectPointPaint = Paint()
     ..isAntiAlias = true
@@ -59,6 +71,9 @@ class ChartPainter extends BaseChartPainter {
     this.bgColor,
     this.fixedLength,
     this.maDayList,
+    @required this.shortFormatter,
+    @required this.wordVolume,
+    String fontFamily,
   })  : assert(bgColor == null || bgColor.length >= 2),
         super(
           datas: datas,
@@ -69,6 +84,7 @@ class ChartPainter extends BaseChartPainter {
           mainState: mainState,
           secondaryState: secondaryState,
           isLine: isLine,
+          fontFamily: fontFamily,
         );
 
   @override
@@ -78,22 +94,45 @@ class ChartPainter extends BaseChartPainter {
         fixedLength = 2;
       } else {
         var t = datas[0];
-        fixedLength =
-            NumberUtil.getMaxDecimalLength(t.open, t.close, t.high, t.low);
+        fixedLength = NumberUtil.getMaxDecimalLength(
+          t.open,
+          t.close,
+          t.high,
+          t.low,
+        );
       }
     }
-    mMainRenderer ??= MainRenderer(mMainRect, mMainMaxValue, mMainMinValue,
-        mTopPadding, mainState, isLine, fixedLength, maDayList);
+    mMainRenderer ??= MainRenderer(
+      mMainRect,
+      mMainMaxValue,
+      mMainMinValue,
+      mTopPadding,
+      mainState,
+      isLine,
+      fixedLength,
+      maDayList: maDayList,
+      fontFamily: fontFamily,
+    );
     mVolRenderer ??= VolRenderer(
-        mVolRect, mVolMaxValue, mVolMinValue, mChildPadding, fixedLength);
+      mVolRect,
+      mVolMaxValue,
+      mVolMinValue,
+      mChildPadding,
+      fixedLength,
+      shortFormatter: shortFormatter,
+      wordVolume: wordVolume,
+      fontFamily: fontFamily,
+    );
     if (mSecondaryRect != null)
       mSecondaryRenderer ??= SecondaryRenderer(
-          mSecondaryRect,
-          mSecondaryMaxValue,
-          mSecondaryMinValue,
-          mChildPadding,
-          secondaryState,
-          fixedLength);
+        mSecondaryRect,
+        mSecondaryMaxValue,
+        mSecondaryMinValue,
+        mChildPadding,
+        secondaryState,
+        fixedLength,
+        fontFamily: fontFamily,
+      );
   }
 
   @override
@@ -188,7 +227,8 @@ class ChartPainter extends BaseChartPainter {
       if (translateX >= startX && translateX <= stopX) {
         int index = indexOfTranslateX(translateX);
         if (datas[index] == null) continue;
-        TextPainter tp = getTextPainter(getDate(datas[index].time));
+        TextPainter tp =
+            getTextPainter(getDate(datas[index].time).toUpperCase());
         y = size.height - (mBottomPadding - tp.height) / 2 - tp.height;
         tp.paint(canvas, Offset(columnSpace * i - tp.width / 2, y));
       }
@@ -212,7 +252,7 @@ class ChartPainter extends BaseChartPainter {
     KLineEntity point = getItem(index);
 
     TextPainter tp = getTextPainter(
-      ChartFormats.moneyFormat.format(point.close),
+      ChartFormats.money.format(point.close),
       Colors.white,
     );
     double textHeight = tp.height;
@@ -321,6 +361,23 @@ class ChartPainter extends BaseChartPainter {
     }
   }
 
+  @override
+  void drawLastPriceLineText(Canvas canvas, Size size, KLineEntity point) {
+    double y = getMainY(point.close);
+
+    // don't render it out of the main rect
+    if (y < mMainRect.top || y > mMainRect.bottom) {
+      return;
+    }
+
+    TextPainter tp = getTextPainter(
+      ChartFormats.money.format(point.close),
+      point.open > point.close ? ChartColors.dnColor : ChartColors.upColor,
+    );
+    tp.paint(canvas, Offset(mWidth - tp.width, y - tp.height - 2));
+  }
+
+  //
   void drawCrossLine(Canvas canvas, Size size) {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
@@ -369,21 +426,6 @@ class ChartPainter extends BaseChartPainter {
       Offset(-mTranslateX + mWidth / scaleX, y),
       paintX,
     );
-  }
-
-  void drawLastPriceLineText(Canvas canvas, Size size, KLineEntity point) {
-    double y = getMainY(point.close);
-
-    // don't render it out of the main rect
-    if (y < mMainRect.top || y > mMainRect.bottom) {
-      return;
-    }
-
-    TextPainter tp = getTextPainter(
-      ChartFormats.moneyFormat.format(point.close),
-      point.open > point.close ? ChartColors.dnColor : ChartColors.upColor,
-    );
-    tp.paint(canvas, Offset(mWidth - tp.width, y - tp.height - 2));
   }
 
   TextPainter getTextPainter(text, [color = ChartColors.defaultTextColor]) {
