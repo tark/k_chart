@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart'
     show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
@@ -16,14 +17,18 @@ abstract class BaseChartPainter extends CustomPainter {
   List<KLineEntity> datas;
   MainState mainState = MainState.MA;
   SecondaryState secondaryState = SecondaryState.MACD;
-  double scaleX = 1.0, scrollX = 0.0, selectX;
+  double scaleX = 1.0;
+  double scrollX = 0.0;
+  double selectX;
   bool isLongPress = false;
   bool isLine = false;
 
   //3块区域大小与位置
   Rect mMainRect, mVolRect, mSecondaryRect;
   double mDisplayHeight, mWidth;
-  double mTopPadding = 30.0, mBottomPadding = 20.0, mChildPadding = 12.0;
+  double mTopPadding = 0.0;
+  double mBottomPadding = 20.0;
+  double mChildPadding = 12.0;
   final int mGridRows = 4, mGridColumns = 4;
   int mStartIndex = 0, mStopIndex = 0;
   double mMainMaxValue = double.minPositive, mMainMinValue = double.maxFinite;
@@ -38,37 +43,41 @@ abstract class BaseChartPainter extends CustomPainter {
   double mDataLen = 0.0; //数据占屏幕总长度
   double mPointWidth = ChartStyle.pointWidth;
   List<String> mFormats = [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]; //格式化时间
+  final String fontFamily;
 
-  BaseChartPainter(
-      {@required this.datas,
-      @required this.scaleX,
-      @required this.scrollX,
-      @required this.isLongPress,
-      @required this.selectX,
-      this.mainState,
-      this.secondaryState,
-      this.isLine}) {
+  BaseChartPainter({
+    @required this.datas,
+    @required this.scaleX,
+    @required this.scrollX,
+    @required this.isLongPress,
+    @required this.selectX,
+    this.mainState,
+    this.secondaryState,
+    this.isLine,
+    this.fontFamily,
+  }) {
     mItemCount = datas?.length ?? 0;
     mDataLen = mItemCount * mPointWidth;
     initFormats();
   }
 
   void initFormats() {
-//    [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]
     if (mItemCount < 2) return;
     int firstTime = datas.first?.time ?? 0;
     int secondTime = datas[1]?.time ?? 0;
-    int time = secondTime - firstTime;
-    time ~/= 1000;
-    //月线
-    if (time >= 24 * 60 * 60 * 28)
-      mFormats = [yy, '-', mm];
-    //日线等
-    else if (time >= 24 * 60 * 60)
-      mFormats = [yy, '-', mm, '-', dd];
-    //小时线等
-    else
-      mFormats = [mm, '-', dd, ' ', HH, ':', nn];
+    int difference = (secondTime - firstTime) ~/ 1000;
+    print('initFormats - difference - $difference');
+
+    final _hour = 60 * 60;
+    final _day = 24 * _hour;
+
+    if (difference < 12 * _hour) {
+      mFormats = [M, ' ', d, ', ', HH, ':', mm];
+    } else if (difference < 7 * _day) {
+      mFormats = [M, ' ', d];
+    } else {
+      mFormats = [M, ' ', yyyy];
+    }
   }
 
   @override
@@ -91,7 +100,7 @@ abstract class BaseChartPainter extends CustomPainter {
         drawCrossLineText(canvas, size);
       }
       drawText(canvas, datas?.last, 5);
-      drawMaxAndMin(canvas);
+      //drawMaxAndMin(canvas);
       drawLastPriceLineText(canvas, size, datas.last);
     }
     canvas.restore();
@@ -305,6 +314,7 @@ abstract class BaseChartPainter extends CustomPainter {
     return TextStyle(
       fontSize: 8.0,
       color: color,
+      fontFamily: fontFamily,
     );
   }
 
