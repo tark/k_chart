@@ -121,9 +121,9 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTRB(
-          x - 2,
+          x,
           yLinePlusPadding,
-          x - 2 + tp.width + 12,
+          x + tp.width + 12,
           yLinePlusPadding + tp.height + 8,
         ),
         Radius.circular(3.0),
@@ -133,7 +133,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     tp.paint(
       canvas,
       Offset(
-        x - 2 + 6,
+        x + 6,
         yLinePlusPadding + 4,
       ),
     );
