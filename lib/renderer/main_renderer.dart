@@ -122,7 +122,12 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   @override
   void drawRightText(Canvas canvas, Size size, textStyle, int gridRows) {
     canvas.drawRect(
-      Rect.fromLTRB(size.width - rightCoverWidth, 0, size.width, size.height),
+      Rect.fromLTRB(
+        size.width - rightCoverWidth,
+        0,
+        size.width,
+        size.height,
+      ),
       backgroundPaint..color = bgColor?.elementAt(0) ?? ChartColors.background,
     );
 
@@ -179,6 +184,13 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       Offset(chartRect.width - rightCoverWidth, chartRect.height),
       gridPaint,
     );
+
+    RenderUtil.drawDashedLine(
+      canvas,
+      Offset(chartRect.width - gridPaint.strokeWidth / 2, 0),
+      Offset(chartRect.width - gridPaint.strokeWidth / 2, chartRect.height),
+      gridPaint,
+    );
   }
 
   @override
@@ -197,24 +209,22 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     }
 
     double columnSpace = chartRect.width / gridColumns;
-    for (int i = 0; i <= columnSpace; i++) {
+    for (int i = 0; i <= gridColumns; i++) {
       // shift is for the last and first vertical lines to keep it's full
       // width inside the screen
-      var shift = 0;
+      var shift = 0.0;
       if (i == 0) {
-        shift = 1;
-      }
-      if (i == columnSpace) {
-        shift = -1;
+        shift = gridPaint.strokeWidth / 2;
       }
 
-      canvas.drawPath(
-        dashPath(
-          Path()
-            ..moveTo(columnSpace * i + shift, topPadding / 3)
-            ..lineTo(columnSpace * i + shift, chartRect.bottom),
-          dashArray: CircularIntervalList<double>([3.0, 3.0]),
-        ),
+      if (i == gridColumns) {
+        shift = -gridPaint.strokeWidth / 2;
+      }
+
+      RenderUtil.drawDashedLine(
+        canvas,
+        Offset(columnSpace * i + shift, topPadding / 3),
+        Offset(columnSpace * i + shift, chartRect.bottom),
         gridPaint,
       );
     }
