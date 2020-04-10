@@ -58,7 +58,17 @@ class KLineEntity extends KEntity {
 
   @override
   String toString() {
-    return 'MarketModel{open: $open, high: $high, low: $low, close: $close, vol: $vol, time: $time, amount: $amount, ratio: $ratio, change: $change}';
+    return 'MarketModel{'
+        'open: $open, '
+        'high: $high, '
+        'low: $low, '
+        'close: $close, '
+        'vol: $vol, '
+        'time: $time, '
+        'amount: $amount, '
+        'ratio: $ratio, '
+        'change: $change'
+        '}';
   }
 
   @override
