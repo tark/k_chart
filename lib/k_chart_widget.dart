@@ -335,46 +335,47 @@ class _KChartWidgetState extends State<KChartWidget>
           //widget.wordAmount,
         ];
 
-        return Container(
-          margin: EdgeInsets.only(
-            left: snapshot.data.isLeft ? 10 : mWidth - mWidth / 3.5 - 10,
-            top: 10,
-          ),
-          padding: EdgeInsets.symmetric(
-            horizontal: 3.0,
-          ),
-          width: mWidth / 3.5,
-          decoration: BoxDecoration(
-            color: ChartColors.selectFillColor,
-            border: Border.all(
-              color: ChartColors.selectBorderColor,
-              width: 0.5,
+        return Positioned(
+          top: 10.0,
+          right: snapshot.data.isLeft ? null : 10.0,
+          left: snapshot.data.isLeft ? 10.0 : null,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 3.0,
             ),
-            borderRadius: BorderRadius.circular(2.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black38,
-                blurRadius: 10.0, // has the effect of softening the shadow
-                spreadRadius: 3.0, // has the effect of extending the shadow
-                offset: Offset(
-                  2.0, // horizontal, move right 10
-                  2.0, // vertical, move down 10
-                ),
-              )
-            ],
-          ),
-          child: ListView.builder(
-            padding: EdgeInsets.all(4),
-            itemCount: infos.length,
-            itemExtent: 14.0,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return _buildItem(
-                infos[index],
-                infoNames[index],
-                //widget.isChinese ? infoNamesCN[index] : infoNamesEN[index],
-              );
-            },
+            width: mWidth / 3.5,
+            decoration: BoxDecoration(
+              color: ChartColors.selectFillColor,
+              border: Border.all(
+                color: ChartColors.selectBorderColor,
+                width: 0.5,
+              ),
+              borderRadius: BorderRadius.circular(2.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 10.0, // has the effect of softening the shadow
+                  spreadRadius: 3.0, // has the effect of extending the shadow
+                  offset: Offset(
+                    2.0, // horizontal, move right 10
+                    2.0, // vertical, move down 10
+                  ),
+                )
+              ],
+            ),
+            child: ListView.builder(
+              padding: EdgeInsets.all(4),
+              itemCount: infos.length,
+              itemExtent: 14.0,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return _buildItem(
+                  infos[index],
+                  infoNames[index],
+                  //widget.isChinese ? infoNamesCN[index] : infoNamesEN[index],
+                );
+              },
+            ),
           ),
         );
       },
