@@ -164,18 +164,35 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
           lineY + rightTextAxisLinePadding,
         ),
       );
-      RenderUtil.drawDashedLine(
-        canvas,
-        Offset(chartRect.width - rightCoverWidth, lineY),
-        Offset(chartRect.width, lineY),
-        gridPaint,
-      );
+      if (v == maxValue ~/ 2) {
+        RenderUtil.drawDashedLine(
+          canvas,
+          Offset(chartRect.width - rightCoverWidth, lineY),
+          Offset(chartRect.width, lineY),
+          gridPaint,
+        );
+      }
     });
 
     RenderUtil.drawDashedLine(
       canvas,
       Offset(chartRect.width - rightCoverWidth, chartRect.top),
       Offset(chartRect.width - rightCoverWidth, chartRect.bottom),
+      gridPaint,
+    );
+
+    RenderUtil.drawDashedLine(
+      canvas,
+      Offset(chartRect.width - gridPaint.strokeWidth / 2, chartRect.top),
+      Offset(chartRect.width - gridPaint.strokeWidth / 2, chartRect.bottom),
+      gridPaint,
+    );
+
+    RenderUtil.drawDashedLine(
+      canvas,
+      Offset(chartRect.width - gridPaint.strokeWidth / 2 - rightCoverWidth,
+          chartRect.bottom),
+      Offset(chartRect.width - gridPaint.strokeWidth / 2, chartRect.bottom),
       gridPaint,
     );
   }
@@ -203,10 +220,12 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
 
     double columnSpace = chartRect.width / gridColumns;
     for (int i = 0; i <= columnSpace; i++) {
+      // shift to make very left vertical line fully visible
+      final shift = i == 0 ? gridPaint.strokeWidth / 2 : 0.0;
       RenderUtil.drawDashedLine(
         canvas,
-        Offset(columnSpace * i, top - topPadding),
-        Offset(columnSpace * i, bottom),
+        Offset(columnSpace * i + shift, top - topPadding),
+        Offset(columnSpace * i + shift, bottom),
         gridPaint,
       );
     }
