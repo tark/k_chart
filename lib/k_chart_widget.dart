@@ -337,13 +337,13 @@ class _KChartWidgetState extends State<KChartWidget>
 
         return Container(
           margin: EdgeInsets.only(
-            left: snapshot.data.isLeft ? 4 : mWidth - mWidth / 3 - 4,
-            top: 25,
+            left: snapshot.data.isLeft ? 10 : mWidth - mWidth / 3.5 - 10,
+            top: 10,
           ),
           padding: EdgeInsets.symmetric(
             horizontal: 3.0,
           ),
-          width: mWidth / 3,
+          width: mWidth / 3.5,
           decoration: BoxDecoration(
             color: ChartColors.selectFillColor,
             border: Border.all(
@@ -365,7 +365,7 @@ class _KChartWidgetState extends State<KChartWidget>
           ),
           child: ListView.builder(
             padding: EdgeInsets.all(4),
-            itemCount: infoNamesCN.length,
+            itemCount: infos.length,
             itemExtent: 14.0,
             shrinkWrap: true,
             itemBuilder: (context, index) {
