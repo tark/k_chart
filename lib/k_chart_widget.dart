@@ -310,8 +310,8 @@ class _KChartWidgetState extends State<KChartWidget>
         }
 
         KLineEntity entity = snapshot.data.kLineEntity;
-        double upDown = entity.change ?? entity.close - entity.open;
-        double upDownPercent = entity.ratio ?? (upDown / entity.open) * 100;
+        double change = entity.close - entity.open;
+        double changePercent = (change / entity.open) * 100;
 
         infos = [
           _getDate(entity.time),
@@ -319,9 +319,9 @@ class _KChartWidgetState extends State<KChartWidget>
           ChartFormats.money.format(entity.high),
           ChartFormats.money.format(entity.low),
           ChartFormats.money.format(entity.close),
-          "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(widget.fixedLength)}",
-          "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-          ChartFormats.numberShort.format(entity.amount),
+          '${change > 0 ? '+' : ''}${change.toStringAsFixed(widget.fixedLength)}',
+          '${changePercent > 0 ? '+' : ''}${changePercent.toStringAsFixed(2)}%',
+          //ChartFormats.numberShort.format(entity.amount),
         ];
 
         final infoNames = [
@@ -330,10 +330,9 @@ class _KChartWidgetState extends State<KChartWidget>
           widget.wordHigh,
           widget.wordLow,
           widget.wordClose,
-          widget.wordDate,
           widget.wordChange,
           widget.wordChange + ', %',
-          widget.wordAmount,
+          //widget.wordAmount,
         ];
 
         return Container(
@@ -385,9 +384,9 @@ class _KChartWidgetState extends State<KChartWidget>
   Widget _buildItem(String info, String infoName) {
     Color color = Colors.white;
     if (info.startsWith("+")) {
-      color = Colors.green;
+      color = ChartColors.upColor;
     } else if (info.startsWith("-")) {
-      color = Colors.red;
+      color = ChartColors.dnColor;
     } else {
       color = Colors.white;
     }
