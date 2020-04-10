@@ -14,6 +14,8 @@ import 'main_renderer.dart';
 import 'secondary_renderer.dart';
 import 'vol_renderer.dart';
 
+const _sideBadgePaddingY = 1.5;
+
 class ChartPainter extends BaseChartPainter {
   //
   static get maxScrollX => BaseChartPainter.maxScrollX;
@@ -269,7 +271,7 @@ class ChartPainter extends BaseChartPainter {
     double paddingXScreenSide = 3;
     double paddingXNearPeak = 1;
     double paddingXPeak = 6;
-    double paddingY = 2.5;
+    double paddingY = _sideBadgePaddingY;
     double verticalDiff = textHeight / 2 + paddingY;
     double peakX;
     double y = getMainY(point.close);
@@ -421,7 +423,7 @@ class ChartPainter extends BaseChartPainter {
 
     double paddingXRight = 3;
     double paddingXLeft = 1;
-    double paddingY = 2.5;
+    double paddingY = _sideBadgePaddingY;
     double peakPaddingX = 6;
     double r = textHeight / 2 + paddingY;
     double peakX;
