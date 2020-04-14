@@ -85,4 +85,5 @@ class ChartFormats {
   static final moneyShort = NumberFormat('\$#,##0');
   static final numberShort = NumberFormat('#,##0');
   static final date = DateFormat('dd MMM yyyy');
+  static final dateWithTime = DateFormat('dd MMM yy  hh:mm');
 }
