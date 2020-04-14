@@ -324,13 +324,13 @@ class ChartPainter extends BaseChartPainter {
 
     final datePaddingX = 5;
     TextPainter dateTp = getTextPainter(
-      getDate(point.time),
+      ChartFormats.dateWithTime
+          .format(DateTime.fromMillisecondsSinceEpoch(point.time)),
       bgColor.elementAt(0) ?? Colors.black,
       true,
     );
     textWidth = dateTp.width;
     textHeight = dateTp.height;
-    //var r = textHeight / 2 + paddingY;
 
     // X center of the badge
     var x = translateXtoX(getX(index));
