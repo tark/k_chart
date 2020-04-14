@@ -15,7 +15,7 @@ enum MainState { MA, BOLL, NONE }
 enum SecondaryState { MACD, KDJ, RSI, WR, NONE }
 
 class TimeFormat {
-  static const List<String> MONTH_DATE_COMMA_YEAR = [mm, ' ', dd, ', ', yyyy];
+  static const List<String> MONTH_DATE_COMMA_YEAR = [M, ' ', dd, ', ', yyyy];
   static const List<String> YEAR_MONTH_DAY = [yyyy, '-', mm, '-', dd];
   static const List<String> YEAR_MONTH_DAY_WITH_HOUR = [
     yyyy,
@@ -319,9 +319,11 @@ class _KChartWidgetState extends State<KChartWidget>
           ChartFormats.money.format(entity.high),
           ChartFormats.money.format(entity.low),
           ChartFormats.money.format(entity.close),
+          widget.shortFormatter != null
+              ? widget.shortFormatter(entity.vol.toInt())
+              : ChartFormats.numberShort.format(entity.vol),
           '${change > 0 ? '+' : ''}${change.toStringAsFixed(widget.fixedLength)}',
           '${changePercent > 0 ? '+' : ''}${changePercent.toStringAsFixed(2)}%',
-          //ChartFormats.numberShort.format(entity.amount),
         ];
 
         final infoNames = [
@@ -330,9 +332,9 @@ class _KChartWidgetState extends State<KChartWidget>
           widget.wordHigh,
           widget.wordLow,
           widget.wordClose,
+          widget.wordVolume,
           widget.wordChange,
           widget.wordChange + ', %',
-          //widget.wordAmount,
         ];
 
         return Positioned(
