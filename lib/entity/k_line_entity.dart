@@ -73,4 +73,6 @@ class KLineEntity extends KEntity {
 
   @override
   bool operator ==(o) => o is KLineEntity && o.time == time;
+
+  int get hashCode => time.hashCode;
 }
