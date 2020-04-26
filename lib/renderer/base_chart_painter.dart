@@ -66,7 +66,6 @@ abstract class BaseChartPainter extends CustomPainter {
     int firstTime = datas.first?.time ?? 0;
     int secondTime = datas[1]?.time ?? 0;
     int difference = (secondTime - firstTime) ~/ 1000;
-    print('initFormats - difference - $difference');
 
     final _hour = 60 * 60;
     final _day = 24 * _hour;
