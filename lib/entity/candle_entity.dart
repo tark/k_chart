@@ -8,8 +8,8 @@ mixin CandleEntity {
   List<double> maValueList;
 
   // BOLL (upper, middle and bottom lines) and some bollMa parameter
-  double up;
-  double mb;
-  double dn;
+  double bollUp;
+  double bollMiddle;
+  double bollDown;
   double bollMa;
 }
