@@ -88,12 +88,37 @@ abstract class BaseChartRenderer<T> {
     if (lastPrice == null || curPrice == null) {
       return;
     }
-    //("lasePrice==" + lastPrice.toString() + "==curPrice==" + curPrice.toString());
     double lastY = getY(lastPrice);
     double curY = getY(curPrice);
-    //print("lastX-----==" + lastX.toString() + "==lastY==" + lastY.toString() + "==curX==" + curX.toString() + "==curY==" + curY.toString());
     canvas.drawLine(
-        Offset(lastX, lastY), Offset(curX, curY), chartPaint..color = color);
+      Offset(lastX, lastY),
+      Offset(curX, curY),
+      chartPaint..color = color,
+    );
+  }
+
+  void drawPath(
+    List<double> prices,
+    List<double> xs,
+    Canvas canvas,
+    Color color,
+  ) {
+    if (prices == null ||
+        prices.isEmpty ||
+        prices.any((p) => p == null) ||
+        xs == null ||
+        xs.isEmpty ||
+        xs.any((x) => x == null) ||
+        xs.length != prices.length) {
+      return;
+    }
+
+    final path = Path()..moveTo(xs.first, getY(prices.first));
+    for (int i = 1; i < prices.length; i++) {
+      path.lineTo(xs[i], getY(prices[i]));
+    }
+
+    canvas.drawPath(path, chartPaint..color = color);
   }
 
   TextStyle getTextStyle(Color color) {
