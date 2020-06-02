@@ -62,34 +62,43 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 
   @override
   void drawText(Canvas canvas, CandleEntity data, double x) {
-    if (isLine == true) return;
-    TextSpan span;
-    if (state == MainState.MA) {
-      span = TextSpan(
-        children: _createMATextSpan(data),
-      );
-    } else if (state == MainState.BOLL) {
-      span = TextSpan(
-        children: [
-          if (data.up != 0)
-            TextSpan(
-              text: "BOLL: ${ChartFormats.money.format(data.mb ?? 0.0)}    ",
-              style: getTextStyle(ChartColors.ma5Color),
-            ),
-          if (data.mb != 0)
-            TextSpan(
-              text: "UB: ${ChartFormats.money.format(data.up ?? 0.0)}    ",
-              style: getTextStyle(ChartColors.ma10Color),
-            ),
-          if (data.dn != 0)
-            TextSpan(
-              text: "LB: ${ChartFormats.money.format(data.dn ?? 0.0)}    ",
-              style: getTextStyle(ChartColors.ma20Color),
-            ),
-        ],
-      );
+    if (isLine == true || state == MainState.NONE) {
+      return;
     }
-    if (span == null) return;
+
+    TextSpan span;
+    switch (state) {
+      case MainState.MA:
+        span = TextSpan(
+          children: _createMATextSpan(data),
+        );
+        break;
+      case MainState.BOLL:
+        span = TextSpan(
+          children: [
+            if (data.mb != null && data.mb != 0)
+              TextSpan(
+                text: "BOLL: ${ChartFormats.money.format(data.mb ?? 0.0)}    ",
+                style: getTextStyle(ChartColors.ma5Color),
+              ),
+            if (data.up != null && data.up != 0)
+              TextSpan(
+                text: "UB: ${ChartFormats.money.format(data.up ?? 0.0)}    ",
+                style: getTextStyle(ChartColors.ma10Color),
+              ),
+            if (data.dn != null && data.dn != 0)
+              TextSpan(
+                text: "LB: ${ChartFormats.money.format(data.dn ?? 0.0)}    ",
+                style: getTextStyle(ChartColors.ma20Color),
+              ),
+          ],
+        );
+        break;
+      case MainState.NONE:
+        // do nothing
+        break;
+    }
+
     TextPainter tp = TextPainter(
       text: span,
       textDirection: TextDirection.ltr,
