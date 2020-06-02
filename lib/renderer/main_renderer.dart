@@ -13,7 +13,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   MainState state;
   bool isLine;
 
-  //绘制的内容区域
+  // Painted content area
   Rect _contentRect;
   double _contentPadding = 5.0;
   List<int> maDayList;
@@ -73,17 +73,17 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         children: [
           if (data.up != 0)
             TextSpan(
-              text: "BOLL: ${ChartFormats.money.format(data.mb)}    ",
+              text: "BOLL: ${ChartFormats.money.format(data.mb ?? 0.0)}    ",
               style: getTextStyle(ChartColors.ma5Color),
             ),
           if (data.mb != 0)
             TextSpan(
-              text: "UB: ${ChartFormats.money.format(data.up)}    ",
+              text: "UB: ${ChartFormats.money.format(data.up ?? 0.0)}    ",
               style: getTextStyle(ChartColors.ma10Color),
             ),
           if (data.dn != 0)
             TextSpan(
-              text: "LB: ${ChartFormats.money.format(data.dn)}    ",
+              text: "LB: ${ChartFormats.money.format(data.dn ?? 0.0)}    ",
               style: getTextStyle(ChartColors.ma20Color),
             ),
         ],
@@ -235,7 +235,6 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     return (maxValue - y) * scaleY + _contentRect.top;
   }
 
-  //画折线图
   drawPolyline(
     double lastPrice,
     double curPrice,
