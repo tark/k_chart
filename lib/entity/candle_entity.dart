@@ -1,18 +1,15 @@
-// ignore_for_file: non_constant_identifier_names,library_prefixes,unused_import,camel_case_types
 mixin CandleEntity {
   double open;
   double high;
   double low;
   double close;
 
+  // MA
   List<double> maValueList;
 
-//  上轨线
+  // BOLL (upper, middle and bottom lines) and some bollMa parameter
   double up;
-//  中轨线
   double mb;
-//  下轨线
   double dn;
-
-  double BOLLMA;
+  double bollMa;
 }
