@@ -175,8 +175,8 @@ abstract class BaseChartPainter extends CustomPainter {
         maxPrice = max(item.high, _findMaxMA(item.maValueList));
         minPrice = min(item.low, _findMinMA(item.maValueList));
       } else if (mainState == MainState.BOLL) {
-        maxPrice = max(item.up ?? 0, item.high);
-        minPrice = min(item.dn ?? 0, item.low);
+        maxPrice = max(item.bollUp ?? 0, item.high);
+        minPrice = min(item.bollDown ?? 0, item.low);
       } else {
         maxPrice = item.high;
         minPrice = item.low;
