@@ -76,19 +76,22 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       case MainState.BOLL:
         span = TextSpan(
           children: [
-            if (data.mb != null && data.mb != 0)
+            if (data.bollMiddle != null && data.bollMiddle != 0)
               TextSpan(
-                text: "BOLL: ${ChartFormats.money.format(data.mb ?? 0.0)}    ",
+                text:
+                    "BOLL: ${ChartFormats.money.format(data.bollMiddle ?? 0.0)}    ",
                 style: getTextStyle(ChartColors.ma5Color),
               ),
-            if (data.up != null && data.up != 0)
+            if (data.bollUp != null && data.bollUp != 0)
               TextSpan(
-                text: "UB: ${ChartFormats.money.format(data.up ?? 0.0)}    ",
+                text:
+                    "UB: ${ChartFormats.money.format(data.bollUp ?? 0.0)}    ",
                 style: getTextStyle(ChartColors.ma10Color),
               ),
-            if (data.dn != null && data.dn != 0)
+            if (data.bollDown != null && data.bollDown != 0)
               TextSpan(
-                text: "LB: ${ChartFormats.money.format(data.dn ?? 0.0)}    ",
+                text:
+                    "LB: ${ChartFormats.money.format(data.bollDown ?? 0.0)}    ",
                 style: getTextStyle(ChartColors.ma20Color),
               ),
           ],
@@ -317,23 +320,53 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   }
 
   void drawBollLine(
-    CandleEntity lastPoint,
-    CandleEntity curPoint,
+    CandleEntity from,
+    CandleEntity to,
     Canvas canvas,
-    double lastX,
-    double curX,
+    double fromX,
+    double toX,
   ) {
-    if (lastPoint.up != 0) {
-      drawLine(lastPoint.up, curPoint.up, canvas, lastX, curX,
-          ChartColors.ma10Color);
+    if (from.bollUp != null &&
+        from.bollUp != 0 &&
+        from.bollDown != null &&
+        from.bollDown != 0) {
+      drawPath(
+        [from.bollUp, to.bollUp, to.bollDown, from.bollDown],
+        [fromX, toX, toX, fromX],
+        canvas,
+        ChartColors.bollBackground,
+      );
     }
-    if (lastPoint.mb != 0) {
+    if (from.bollUp != null && from.bollUp != 0) {
       drawLine(
-          lastPoint.mb, curPoint.mb, canvas, lastX, curX, ChartColors.ma5Color);
+        from.bollUp,
+        to.bollUp,
+        canvas,
+        fromX,
+        toX,
+        ChartColors.bollUp,
+      );
     }
-    if (lastPoint.dn != 0) {
-      drawLine(lastPoint.dn, curPoint.dn, canvas, lastX, curX,
-          ChartColors.ma20Color);
+
+    if (from.bollDown != null && from.bollDown != 0) {
+      drawLine(
+        from.bollDown,
+        to.bollDown,
+        canvas,
+        fromX,
+        toX,
+        ChartColors.bollDown,
+      );
+    }
+    if (from.bollMiddle != null && from.bollMiddle != 0) {
+      drawLine(
+        from.bollMiddle,
+        to.bollMiddle,
+        canvas,
+        fromX,
+        toX,
+        ChartColors.bollMiddle,
+      );
     }
   }
 
