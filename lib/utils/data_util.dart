@@ -6,18 +6,22 @@ import '../entity/k_line_entity.dart';
 
 // ignore_for_file: non_constant_identifier_names,library_prefixes,unused_import,camel_case_types
 class DataUtil {
-  static calculate(List<KLineEntity> dataList,
-      [List<int> maDayList = const [5, 10, 20], int n = 20, k = 2]) {
-    calcMA(dataList, maDayList);
-    calcBOLL(dataList, n, k);
-    calcVolumeMA(dataList);
-    calcKDJ(dataList);
-    calcMACD(dataList);
-    calcRSI(dataList);
-    calcWR(dataList);
+  static calculate(
+    List<KLineEntity> dataList, [
+    List<int> maDayList = const [5, 10, 20],
+    int n = 20,
+    k = 2,
+  ]) {
+    _calcMA(dataList, maDayList);
+    _calcBOLL(dataList, n, k);
+    _calcVolumeMA(dataList);
+    _calcKDJ(dataList);
+    _calcMACD(dataList);
+    _calcRSI(dataList);
+    _calcWR(dataList);
   }
 
-  static calcMA(List<KLineEntity> dataList, List<int> maDayList) {
+  static _calcMA(List<KLineEntity> dataList, List<int> maDayList) {
     List<double> ma = List<double>.filled(maDayList.length, 0);
 
     if (dataList != null && dataList.isNotEmpty) {
@@ -41,7 +45,8 @@ class DataUtil {
     }
   }
 
-  static void calcBOLL(List<KLineEntity> dataList, int n, int k) {
+  static void _calcBOLL(List<KLineEntity> dataList, int n, int k) {
+    print('_calcBOLL - $n - $k - ${dataList?.length}');
     _calcBOLLMA(n, dataList);
     for (int i = 0; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
@@ -49,13 +54,13 @@ class DataUtil {
         double md = 0;
         for (int j = i - n + 1; j <= i; j++) {
           double c = dataList[j].close;
-          double m = entity.BOLLMA;
+          double m = entity.bollMa;
           double value = c - m;
           md += value * value;
         }
         md = md / (n - 1);
         md = sqrt(md);
-        entity.mb = entity.BOLLMA;
+        entity.mb = entity.bollMa;
         entity.up = entity.mb + k * md;
         entity.dn = entity.mb - k * md;
       }
@@ -63,22 +68,27 @@ class DataUtil {
   }
 
   static void _calcBOLLMA(int day, List<KLineEntity> dataList) {
+    print('_calcBOLLMA - $day - ${dataList?.length}');
+    if (dataList == null) {
+      return;
+    }
+
     double ma = 0;
-    for (int i = 0; dataList != null && i < dataList.length; i++) {
-      KLineEntity entity = dataList[i];
-      ma += entity.close;
+    for (int i = 0; i < dataList.length; i++) {
+      final e = dataList[i];
+      ma += e.close;
       if (i == day - 1) {
-        entity.BOLLMA = ma / day;
+        e.bollMa = ma / day;
       } else if (i >= day) {
         ma -= dataList[i - day].close;
-        entity.BOLLMA = ma / day;
+        e.bollMa = ma / day;
       } else {
-        entity.BOLLMA = null;
+        e.bollMa = null;
       }
     }
   }
 
-  static void calcMACD(List<KLineEntity> dataList) {
+  static void _calcMACD(List<KLineEntity> dataList) {
     double ema12 = 0;
     double ema26 = 0;
     double dif = 0;
@@ -109,7 +119,7 @@ class DataUtil {
     }
   }
 
-  static void calcVolumeMA(List<KLineEntity> dataList) {
+  static void _calcVolumeMA(List<KLineEntity> dataList) {
     double volumeMa5 = 0;
     double volumeMa10 = 0;
 
@@ -139,7 +149,7 @@ class DataUtil {
     }
   }
 
-  static void calcRSI(List<KLineEntity> dataList) {
+  static void _calcRSI(List<KLineEntity> dataList) {
     double rsi;
     double rsiABSEma = 0;
     double rsiMaxEma = 0;
@@ -164,7 +174,7 @@ class DataUtil {
     }
   }
 
-  static void calcKDJ(List<KLineEntity> dataList) {
+  static void _calcKDJ(List<KLineEntity> dataList) {
     double k = 0;
     double d = 0;
     for (int i = 0; i < dataList.length; i++) {
@@ -207,7 +217,7 @@ class DataUtil {
     }
   }
 
-  static void calcWR(List<KLineEntity> dataList) {
+  static void _calcWR(List<KLineEntity> dataList) {
     double r;
     for (int i = 0; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
