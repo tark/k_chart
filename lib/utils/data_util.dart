@@ -7,7 +7,7 @@ import '../entity/k_line_entity.dart';
 // ignore_for_file: non_constant_identifier_names,library_prefixes,unused_import,camel_case_types
 class DataUtil {
   static calculate(
-    List<KLineEntity> data, [
+    List<KLineEntity> data, {
     List<int> maDayList = const [5, 10, 20],
     int bollCalcPeriod = 20,
     int bollBandwidth = 2,
@@ -19,7 +19,7 @@ class DataUtil {
     int kdjMaPeriod2 = 3,
     int rsiPeriod = 6, // 12 / 24
     int wrPeriod = 14, // 20
-  ]) {
+  }) {
     _calcMA(data, maDayList);
     _calcBOLL(data, bollCalcPeriod, bollBandwidth);
     _calcVolumeMA(data);
