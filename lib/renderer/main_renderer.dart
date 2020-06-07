@@ -74,25 +74,40 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         );
         break;
       case MainState.BOLL:
+        final middle = data.bollMiddle != null && data.bollMiddle != 0;
+        final up = data.bollUp != null && data.bollUp != 0;
+        final down = data.bollDown != null && data.bollDown != 0;
         span = TextSpan(
           children: [
-            if (data.bollMiddle != null && data.bollMiddle != 0)
+            if (middle)
               TextSpan(
-                text:
-                    "BOLL: ${ChartFormats.money.format(data.bollMiddle ?? 0.0)}    ",
-                style: getTextStyle(ChartColors.ma5Color),
+                text: 'BOLL: ',
+                style: getTextStyleLight(ChartColors.ma5Color),
               ),
-            if (data.bollUp != null && data.bollUp != 0)
+            if (middle)
               TextSpan(
-                text:
-                    "UB: ${ChartFormats.money.format(data.bollUp ?? 0.0)}    ",
-                style: getTextStyle(ChartColors.ma10Color),
+                text: ChartFormats.money.format(data.bollMiddle) + '    ',
+                style: getTextStyleBold(ChartColors.ma5Color),
               ),
-            if (data.bollDown != null && data.bollDown != 0)
+            if (up)
               TextSpan(
-                text:
-                    "LB: ${ChartFormats.money.format(data.bollDown ?? 0.0)}    ",
-                style: getTextStyle(ChartColors.ma20Color),
+                text: 'UB: ',
+                style: getTextStyleLight(ChartColors.ma10Color),
+              ),
+            if (up)
+              TextSpan(
+                text: ChartFormats.money.format(data.bollUp) + '    ',
+                style: getTextStyleBold(ChartColors.ma10Color),
+              ),
+            if (down)
+              TextSpan(
+                text: 'LB: ',
+                style: getTextStyleLight(ChartColors.ma20Color),
+              ),
+            if (down)
+              TextSpan(
+                text: ChartFormats.money.format(data.bollDown),
+                style: getTextStyleBold(ChartColors.ma20Color),
               ),
           ],
         );
@@ -107,6 +122,19 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       textDirection: TextDirection.ltr,
     );
     tp.layout();
+
+    canvas.drawRect(
+      Rect.fromLTRB(
+        chartRect.left,
+        chartRect.top,
+        chartRect.left + tp.width + rightTextScreenSidePadding * 2,
+        chartRect.top + tp.height + rightTextAxisLinePadding * 2,
+      ),
+      backgroundPaint
+        ..color =
+            bgColor?.elementAt(0)?.withOpacity(0.75) ?? ChartColors.background,
+    );
+
     tp.paint(canvas, Offset(x, chartRect.top + rightTextAxisLinePadding));
   }
 
@@ -416,13 +444,27 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   List<InlineSpan> _createMATextSpan(CandleEntity data) {
     List<InlineSpan> result = [];
     for (int i = 0; i < data.maValueList.length; i++) {
-      if (data.maValueList[i] != 0) {
-        var item = TextSpan(
-          text:
-              "MA${maDayList[i]}: ${ChartFormats.money.format(data.maValueList[i])}    ",
-          style: getTextStyle(ChartColors.getMAColor(i)),
+      final color = ChartColors.getMAColor(i);
+      final value = data.maValueList[i];
+      if (value != 0) {
+        result.add(
+          TextSpan(
+            text: 'MA${maDayList[i]}: ',
+            style: getTextStyleLight(color.withOpacity(0.7)),
+          ),
         );
-        result.add(item);
+
+        var text = '${ChartFormats.money.format(value)}';
+        if (i != data.maValueList.length - 1) {
+          text += '    ';
+        }
+
+        result.add(
+          TextSpan(
+            text: text,
+            style: getTextStyleBold(color),
+          ),
+        );
       }
     }
     return result;
