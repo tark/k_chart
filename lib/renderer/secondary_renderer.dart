@@ -10,6 +10,14 @@ import 'base_chart_renderer.dart';
 class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
   double mMACDWidth = ChartStyle.macdWidth;
   SecondaryState state;
+  final int macdShortPeriod;
+  final int macdLongPeriod;
+  final int macdMaPeriod;
+  final int rsiPeriod;
+  final int wrPeriod;
+  final int kdjCalcPeriod;
+  final int kdjMaPeriod1;
+  final int kdjMaPeriod2;
 
   SecondaryRenderer(
     Rect mainRect,
@@ -18,6 +26,14 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
     double topPadding,
     this.state,
     int fixedLength, {
+    this.macdShortPeriod,
+    this.macdLongPeriod,
+    this.macdMaPeriod,
+    this.rsiPeriod,
+    this.wrPeriod,
+    this.kdjCalcPeriod,
+    this.kdjMaPeriod1,
+    this.kdjMaPeriod2,
     String fontFamily,
     List<Color> bgColor,
   }) : super(
@@ -128,61 +144,99 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
       case SecondaryState.MACD:
         children = [
           TextSpan(
-            text: "MACD(12,26,9)    ",
-            style: getTextStyle(ChartColors.defaultTextColor),
+            text: 'MACD ',
+            style: getTextStyleLight(ChartColors.defaultTextColor),
+          ),
+          TextSpan(
+            text: "($macdShortPeriod, $macdLongPeriod, $macdMaPeriod)    ",
+            style: getTextStyleBold(ChartColors.defaultTextColor),
           ),
           if (data.macd != 0)
             TextSpan(
-              text: "MACD: ${format(data.macd)}    ",
-              style: getTextStyle(ChartColors.macdColor),
+              text: "MACD: ",
+              style: getTextStyleLight(ChartColors.macdColorOpacity70),
+            ),
+          if (data.macd != 0)
+            TextSpan(
+              text: "${format(data.macd)}    ",
+              style: getTextStyleBold(ChartColors.macdColor),
             ),
           if (data.dif != 0)
             TextSpan(
-              text: "DIF: ${format(data.dif)}    ",
-              style: getTextStyle(ChartColors.difColor),
+              text: "DIF: ",
+              style: getTextStyleLight(ChartColors.difColorOpacity70),
+            ),
+          if (data.dif != 0)
+            TextSpan(
+              text: "${format(data.dif)}    ",
+              style: getTextStyleBold(ChartColors.difColor),
             ),
           if (data.dea != 0)
             TextSpan(
-              text: "DEA: ${format(data.dea)}    ",
-              style: getTextStyle(ChartColors.deaColor),
+              text: "DEA: ",
+              style: getTextStyleLight(ChartColors.deaColorOpacity70),
+            ),
+          if (data.dea != 0)
+            TextSpan(
+              text: "${format(data.dea)}",
+              style: getTextStyleBold(ChartColors.deaColor),
             ),
         ];
         break;
       case SecondaryState.KDJ:
         children = [
           TextSpan(
-            text: "KDJ(14,1,3)    ",
-            style: getTextStyle(ChartColors.defaultTextColor),
+            text: "KDJ ",
+            style: getTextStyleLight(ChartColors.defaultTextColor),
+          ),
+          TextSpan(
+            text: '($kdjCalcPeriod, $kdjMaPeriod1, $kdjMaPeriod2)    ',
+            style: getTextStyleBold(ChartColors.defaultTextColor),
           ),
           if (data.macd != 0)
             TextSpan(
-              text: "K:${format(data.k)}    ",
-              style: getTextStyle(ChartColors.kColor),
+              text: 'K: ',
+              style: getTextStyleLight(ChartColors.kColorOpacity70),
+            ),
+          if (data.macd != 0)
+            TextSpan(
+              text: '${format(data.k)}    ',
+              style: getTextStyleBold(ChartColors.kColor),
             ),
           if (data.dif != 0)
             TextSpan(
-              text: "D:${format(data.d)}    ",
-              style: getTextStyle(ChartColors.dColor),
+              text: 'D: ',
+              style: getTextStyleBold(ChartColors.dColorOpacity70),
+            ),
+          if (data.dif != 0)
+            TextSpan(
+              text: '${format(data.d)}    ',
+              style: getTextStyleBold(ChartColors.dColor),
             ),
           if (data.dea != 0)
             TextSpan(
-              text: "J:${format(data.j)}    ",
-              style: getTextStyle(ChartColors.jColor),
+              text: 'J: ',
+              style: getTextStyleLight(ChartColors.jColorOpacity70),
+            ),
+          if (data.dea != 0)
+            TextSpan(
+              text: '${format(data.j)}',
+              style: getTextStyleBold(ChartColors.jColor),
             ),
         ];
         break;
       case SecondaryState.RSI:
         children = [
           TextSpan(
-              text: "RSI(14):${format(data.rsi)}    ",
-              style: getTextStyle(ChartColors.rsiColor)),
+              text: "RSI $rsiPeriod: ${format(data.rsi)}",
+              style: getTextStyleBold(ChartColors.rsiColor)),
         ];
         break;
       case SecondaryState.WR:
         children = [
           TextSpan(
-              text: "WR(14):${format(data.r)}    ",
-              style: getTextStyle(ChartColors.rsiColor)),
+              text: "WR $wrPeriod: ${format(data.r)}",
+              style: getTextStyleBold(ChartColors.rsiColor)),
         ];
         break;
       default:
@@ -193,7 +247,21 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
       textDirection: TextDirection.ltr,
     );
     tp.layout();
-    tp.paint(canvas, Offset(x, chartRect.top - topPadding));
+    canvas.drawRect(
+      Rect.fromLTRB(
+        chartRect.left,
+        chartRect.top,
+        chartRect.left + tp.width + rightTextScreenSidePadding * 2,
+        chartRect.top + tp.height + rightTextAxisLinePadding * 2,
+      ),
+      backgroundPaint
+        ..color =
+            bgColor?.elementAt(0)?.withOpacity(0.75) ?? ChartColors.background,
+    );
+    tp.paint(
+      canvas,
+      Offset(x, chartRect.top - topPadding + rightTextAxisLinePadding),
+    );
   }
 
   @override
