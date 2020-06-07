@@ -6,9 +6,12 @@ class ChartColors {
 
   static const Color kLineColor = Color(0xff4C86CD);
   static const Color lineFillColor = Colors.white54;
-  static const Color ma5Color = Color(0xb2007AFF);
-  static const Color ma10Color = Color(0xb2ffffff);
-  static const Color ma20Color = Color(0xb2F7931A);
+  static const Color ma5Color = Color(0xFF2979ff);
+  static const Color ma10Color = Color(0xFFffffff);
+  static const Color ma20Color = Color(0xFFffea00);
+  static const Color ma5ColorOpacity70 = Color(0xBF007AFF);
+  static const Color ma10ColorOpacity70 = Color(0xBFffffff);
+  static const Color ma20ColorOpacity70 = Color(0xBFffea00);
   static const Color bollUp = Color(0xFF2979FF);
   static const Color bollMiddle = Color(0xFFff1744);
   static const Color bollDown = Color(0xFF2979FF);
@@ -19,14 +22,21 @@ class ChartColors {
   static const Color dnColorDark = Color(0xFFE64439);
   static const Color volColor = Colors.white54;
 
-  static const Color macdColor = Color(0xff4729AE);
-  static const Color difColor = Color(0xffC9B885);
-  static const Color deaColor = Color(0xff6CB0A6);
+  static const Color macdColor = Color(0xffb388ff);
+  static const Color difColor = Color(0xffffea00);
+  static const Color deaColor = Color(0xff18ffff);
+  static const Color macdColorOpacity70 = Color(0xBFb388ff);
+  static const Color difColorOpacity70 = Color(0xBFffea00);
+  static const Color deaColorOpacity70 = Color(0xBF18ffff);
 
-  static const Color kColor = Color(0xffC9B885);
-  static const Color dColor = Color(0xff6CB0A6);
-  static const Color jColor = Color(0xff9979C6);
-  static const Color rsiColor = Color(0xffC9B885);
+  static const Color kColor = Color(0xffffea00);
+  static const Color dColor = Color(0xff18ffff);
+  static const Color jColor = Color(0xffb388ff);
+  static const Color rsiColor = Color(0xffffea00);
+  static const Color kColorOpacity70 = Color(0xBFffea00);
+  static const Color dColorOpacity70 = Color(0xBF18ffff);
+  static const Color jColorOpacity70 = Color(0xBFb388ff);
+  static const Color rsiColorOpacity70 = Color(0xBFffea00);
 
   static const Color defaultTextColor = Colors.white54;
 
