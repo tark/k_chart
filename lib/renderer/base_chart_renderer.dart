@@ -20,7 +20,7 @@ abstract class BaseChartRenderer<T> {
   Paint chartPaint = Paint()
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
-    ..strokeWidth = 1.0
+    ..strokeWidth = 1.5
     ..color = Colors.red;
 
   Paint gridPaint = Paint()
@@ -121,11 +121,33 @@ abstract class BaseChartRenderer<T> {
     canvas.drawPath(path, chartPaint..color = color);
   }
 
-  TextStyle getTextStyle(Color color) {
+  TextStyle getTextStyle(Color color, {bool bold = false, bool light = false}) {
+    FontWeight fontWeight;
+    if (bold) {
+      fontWeight = FontWeight.bold;
+    }
+    if (light) {
+      fontWeight = FontWeight.w300;
+    }
     return TextStyle(
       fontSize: 8.0,
       color: color,
       fontFamily: fontFamily,
+      fontWeight: fontWeight,
+    );
+  }
+
+  TextStyle getTextStyleBold(Color color) {
+    return getTextStyle(
+      color,
+      bold: true,
+    );
+  }
+
+  TextStyle getTextStyleLight(Color color) {
+    return getTextStyle(
+      color,
+      light: true,
     );
   }
 }
