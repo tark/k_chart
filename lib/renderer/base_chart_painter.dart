@@ -8,6 +8,7 @@ import 'package:k_chart/utils/date_format_util.dart';
 import '../chart_style.dart' show ChartStyle;
 import '../entity/k_line_entity.dart';
 import '../k_chart_widget.dart';
+import 'base_chart_renderer.dart';
 
 export 'package:flutter/material.dart'
     show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
@@ -44,6 +45,14 @@ abstract class BaseChartPainter extends CustomPainter {
   double mPointWidth = ChartStyle.pointWidth;
   List<String> mFormats = [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]; //格式化时间
   final String fontFamily;
+  final int macdShortPeriod;
+  final int macdLongPeriod;
+  final int macdMaPeriod;
+  final int rsiPeriod;
+  final int wrPeriod;
+  final int kdjCalcPeriod;
+  final int kdjMaPeriod1;
+  final int kdjMaPeriod2;
 
   BaseChartPainter({
     @required this.datas,
@@ -55,6 +64,14 @@ abstract class BaseChartPainter extends CustomPainter {
     this.secondaryState,
     this.isLine,
     this.fontFamily,
+    this.macdShortPeriod,
+    this.macdLongPeriod,
+    this.macdMaPeriod,
+    this.rsiPeriod,
+    this.wrPeriod,
+    this.kdjCalcPeriod,
+    this.kdjMaPeriod1,
+    this.kdjMaPeriod2,
   }) {
     mItemCount = datas?.length ?? 0;
     mDataLen = mItemCount * mPointWidth;
@@ -98,7 +115,7 @@ abstract class BaseChartPainter extends CustomPainter {
       if (isLongPress == true) {
         drawCrossLineText(canvas, size);
       }
-      drawText(canvas, datas?.last, 5);
+      drawText(canvas, datas?.last, rightTextScreenSidePadding);
       //drawMaxAndMin(canvas);
       drawLastPriceLine(canvas, size, datas.last);
       drawLastPriceLineText(canvas, size, datas.last);
