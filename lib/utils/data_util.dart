@@ -6,7 +6,7 @@ import '../entity/k_line_entity.dart';
 
 // ignore_for_file: non_constant_identifier_names,library_prefixes,unused_import,camel_case_types
 class DataUtil {
-  static calculate(
+  static List<KLineEntity> calculate(
     List<KLineEntity> data, {
     List<int> maDayList = const [5, 10, 20],
     int bollCalcPeriod = 20,
@@ -20,13 +20,16 @@ class DataUtil {
     int rsiPeriod = 6, // 12 / 24
     int wrPeriod = 14, // 20
   }) {
-    _calcMA(data, maDayList);
-    _calcBOLL(data, bollCalcPeriod, bollBandwidth);
-    _calcVolumeMA(data);
-    _calcKDJ(data, kdjCalcPeriod, kdjMaPeriod1, kdjMaPeriod2);
-    _calcMACD(data, macdShortPeriod, macdLongPeriod, macdMaPeriod);
-    _calcRSI(data, rsiPeriod);
-    _calcWR(data, wrPeriod);
+    final dataInner = [...data];
+    // todo make below methods all return data instead of changing given one.
+    _calcMA(dataInner, maDayList);
+    _calcBOLL(dataInner, bollCalcPeriod, bollBandwidth);
+    _calcVolumeMA(dataInner);
+    _calcKDJ(dataInner, kdjCalcPeriod, kdjMaPeriod1, kdjMaPeriod2);
+    _calcMACD(dataInner, macdShortPeriod, macdLongPeriod, macdMaPeriod);
+    _calcRSI(dataInner, rsiPeriod);
+    _calcWR(dataInner, wrPeriod);
+    return dataInner;
   }
 
   static _calcMA(List<KLineEntity> dataList, List<int> maDayList) {
