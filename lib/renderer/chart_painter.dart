@@ -81,6 +81,14 @@ class ChartPainter extends BaseChartPainter {
     @required this.shortFormatter,
     @required this.wordVolume,
     String fontFamily,
+    int macdShortPeriod,
+    int macdLongPeriod,
+    int macdMaPeriod,
+    int rsiPeriod,
+    int wrPeriod,
+    int kdjCalcPeriod,
+    int kdjMaPeriod1,
+    int kdjMaPeriod2,
   })  : assert(bgColor == null || bgColor.length >= 2),
         super(
           datas: datas,
@@ -92,6 +100,14 @@ class ChartPainter extends BaseChartPainter {
           secondaryState: secondaryState,
           isLine: isLine,
           fontFamily: fontFamily,
+          macdShortPeriod: macdShortPeriod,
+          macdLongPeriod: macdLongPeriod,
+          macdMaPeriod: macdMaPeriod,
+          rsiPeriod: rsiPeriod,
+          wrPeriod: wrPeriod,
+          kdjCalcPeriod: kdjCalcPeriod,
+          kdjMaPeriod1: kdjMaPeriod1,
+          kdjMaPeriod2: kdjMaPeriod2,
         );
 
   @override
@@ -142,6 +158,14 @@ class ChartPainter extends BaseChartPainter {
         fixedLength,
         fontFamily: fontFamily,
         bgColor: bgColor,
+        macdShortPeriod: macdShortPeriod,
+        macdLongPeriod: macdLongPeriod,
+        macdMaPeriod: macdMaPeriod,
+        rsiPeriod: rsiPeriod,
+        wrPeriod: wrPeriod,
+        kdjCalcPeriod: kdjCalcPeriod,
+        kdjMaPeriod1: kdjMaPeriod1,
+        kdjMaPeriod2: kdjMaPeriod2,
       );
   }
 
