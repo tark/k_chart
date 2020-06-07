@@ -52,6 +52,14 @@ class KChartWidget extends StatefulWidget {
   final List<Color> bgColor;
   final int fixedLength;
   final List<int> maDayList;
+  final int rsiPeriod;
+  final int wrPeriod;
+  final int macdShortPeriod;
+  final int macdLongPeriod;
+  final int macdMaPeriod;
+  final int kdjCalcPeriod;
+  final int kdjMaPeriod1;
+  final int kdjMaPeriod2;
   final int flingTime;
   final double flingRatio;
   final Curve flingCurve;
@@ -62,7 +70,6 @@ class KChartWidget extends StatefulWidget {
   final Formatter shortFormatter;
 
   final String fontFamily;
-
   final String wordVolume;
   final String wordDate;
   final String wordOpen;
@@ -98,6 +105,14 @@ class KChartWidget extends StatefulWidget {
     this.wordClose = 'Close',
     this.wordChange = 'Change',
     this.wordAmount = 'Amount',
+    this.rsiPeriod = 6,
+    this.wrPeriod = 14,
+    this.macdShortPeriod = 12,
+    this.macdLongPeriod = 26,
+    this.macdMaPeriod = 9,
+    this.kdjCalcPeriod = 9,
+    this.kdjMaPeriod1 = 3,
+    this.kdjMaPeriod2 = 3,
   }) : assert(maDayList != null);
 
   @override
@@ -230,6 +245,14 @@ class _KChartWidgetState extends State<KChartWidget>
               shortFormatter: widget.shortFormatter,
               fontFamily: widget.fontFamily,
               wordVolume: widget.wordVolume,
+              rsiPeriod: widget.rsiPeriod,
+              wrPeriod: widget.wrPeriod,
+              macdShortPeriod: widget.macdShortPeriod,
+              macdLongPeriod: widget.macdLongPeriod,
+              macdMaPeriod: widget.macdMaPeriod,
+              kdjCalcPeriod: widget.kdjCalcPeriod,
+              kdjMaPeriod1: widget.kdjMaPeriod1,
+              kdjMaPeriod2: widget.kdjMaPeriod2,
             ),
           ),
           _buildInfoDialog()
