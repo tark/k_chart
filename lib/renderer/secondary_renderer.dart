@@ -266,7 +266,6 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
 
   @override
   void drawRightText(Canvas canvas, Size size, textStyle, int gridRows) {
-    print('drawRightText - $minValue - $maxValue');
     final values = [
       maxValue,
       minValue + (maxValue - minValue) / 2,
