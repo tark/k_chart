@@ -63,7 +63,6 @@ class DataUtil {
     int calcPeriod,
     int bandwidth,
   ) {
-    print('_calcBOLL - $calcPeriod - $bandwidth - ${dataList?.length}');
     _calcBOLLMA(calcPeriod, dataList);
     for (int i = 0; i < dataList.length; i++) {
       final e = dataList[i];
@@ -85,7 +84,6 @@ class DataUtil {
   }
 
   static void _calcBOLLMA(int day, List<KLineEntity> dataList) {
-    print('_calcBOLLMA - $day - ${dataList?.length}');
     if (dataList == null) {
       return;
     }
