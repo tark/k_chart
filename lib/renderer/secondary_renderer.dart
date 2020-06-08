@@ -228,15 +228,25 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
       case SecondaryState.RSI:
         children = [
           TextSpan(
-              text: "RSI $rsiPeriod: ${format(data.rsi)}",
-              style: getTextStyleBold(ChartColors.rsiColor)),
+            text: 'RSI $rsiPeriod: ',
+            style: getTextStyleLight(ChartColors.rsiColorOpacity70),
+          ),
+          TextSpan(
+            text: format(data.rsi),
+            style: getTextStyleBold(ChartColors.rsiColor),
+          ),
         ];
         break;
       case SecondaryState.WR:
         children = [
           TextSpan(
-              text: "WR $wrPeriod: ${format(data.r)}",
-              style: getTextStyleBold(ChartColors.rsiColor)),
+            text: 'WR $wrPeriod: ',
+            style: getTextStyleLight(ChartColors.rsiColorOpacity70),
+          ),
+          TextSpan(
+            text: format(data.r),
+            style: getTextStyleBold(ChartColors.rsiColor),
+          ),
         ];
         break;
       default:
