@@ -437,7 +437,7 @@ class ChartPainter extends BaseChartPainter {
     }
 
     TextPainter textPaint = getTextPainter(
-      ChartFormats.moneyShort.format(point.close),
+      ChartFormats.money.format(point.close),
       bgColor?.elementAt(0) ?? Colors.black,
       true,
     );
