@@ -35,7 +35,7 @@ class TimeFormat {
 /// graph to move a little bit more to make the first value be not
 /// at the very right. So we have space between right end and the last value
 /// This is more readable.
-const _rightScrollingOffset = -50.0;
+const _rightScrollingOffset = -10.0;
 
 class KChartWidget extends StatefulWidget {
   final List<KLineEntity> datas;
