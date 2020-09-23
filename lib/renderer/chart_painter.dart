@@ -213,7 +213,7 @@ class ChartPainter extends BaseChartPainter {
   @override
   void drawChart(Canvas canvas, Size size) {
     canvas.save();
-    canvas.translate(mTranslateX * scaleX, 0.0);
+    canvas.translate(mTranslateX * scaleX - rightCoverWidth, 0.0);
     canvas.scale(scaleX, 1.0);
     for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
       KLineEntity curPoint = datas[i];
@@ -437,7 +437,7 @@ class ChartPainter extends BaseChartPainter {
     }
 
     TextPainter textPaint = getTextPainter(
-      ChartFormats.moneyShort.format(point.close),
+      ChartFormats.money.format(point.close),
       bgColor?.elementAt(0) ?? Colors.black,
       true,
     );
