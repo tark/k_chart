@@ -103,7 +103,6 @@ abstract class BaseChartPainter extends CustomPainter {
     initRect(size);
     calculateValue();
     initChartRenderer();
-
     canvas.save();
     canvas.scale(1, 1);
     drawBg(canvas, size);
@@ -170,6 +169,7 @@ abstract class BaseChartPainter extends CustomPainter {
 
   calculateValue() {
     if (datas == null || datas.isEmpty) return;
+    // chart margin left is 100.0 default. think about change it less.
     maxScrollX = getMinTranslateX().abs() + 100.0;
     setTranslateXFromScrollX(scrollX);
     mStartIndex = indexOfTranslateX(xToTranslateX(0));
