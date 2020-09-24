@@ -37,6 +37,21 @@ class TimeFormat {
 /// This is more readable.
 const _rightScrollingOffset = -10.0;
 
+class KChartWidgetController extends ChangeNotifier {
+  double _rightScrollOffset;
+
+  KChartWidgetController({double initialRightScrollOffset = 0.0})
+      : assert(initialRightScrollOffset != null),
+        _rightScrollOffset = initialRightScrollOffset;
+
+  double get rightScrollOffset => _rightScrollOffset;
+
+  void jumpTo(double value) {
+    _rightScrollOffset = value;
+    notifyListeners();
+  }
+}
+
 class KChartWidget extends StatefulWidget {
   final List<KLineEntity> datas;
   final MainState mainState;
@@ -45,6 +60,7 @@ class KChartWidget extends StatefulWidget {
   final bool isChinese;
   final List<String> timeFormat;
   final DateFormat dateFormat;
+  final KChartWidgetController controller;
 
   /// Called when the screen is scrolled to the end,
   /// returns TRUE if the right side, returns FALSE if the left side
@@ -87,6 +103,7 @@ class KChartWidget extends StatefulWidget {
     this.isChinese = true,
     this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
     this.dateFormat,
+    this.controller,
     this.onLoadMore,
     this.bgColor,
     this.fixedLength,
@@ -156,6 +173,13 @@ class _KChartWidgetState extends State<KChartWidget>
   void initState() {
     super.initState();
     mInfoWindowStream = StreamController<InfoWindowEntity>();
+    widget.controller?.addListener?.call(_scrollToRightOffset);
+  }
+
+  void _scrollToRightOffset() {
+    final rightScrollOffset = widget.controller.rightScrollOffset;
+    mScrollX = rightScrollOffset;
+    notifyChanged();
   }
 
   @override
@@ -168,13 +192,15 @@ class _KChartWidgetState extends State<KChartWidget>
   void dispose() {
     mInfoWindowStream?.close();
     _controller?.dispose();
+    widget.controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.datas == null || widget.datas.isEmpty) {
-      mScrollX = mSelectX = 0.0;
+      mScrollX = widget.controller?.rightScrollOffset ?? 0.0;
+      mSelectX = 0.0;
       mScaleX = 1.0;
     }
     return GestureDetector(
@@ -184,9 +210,8 @@ class _KChartWidgetState extends State<KChartWidget>
       },
       onHorizontalDragUpdate: (details) {
         if (isScale || isLongPress) return;
-        mScrollX = (details.primaryDelta / mScaleX + mScrollX)
-            .clamp(_rightScrollingOffset, ChartPainter.maxScrollX);
-        notifyChanged();
+        widget.controller.jumpTo((details.primaryDelta / mScaleX + mScrollX)
+            .clamp(_rightScrollingOffset, ChartPainter.maxScrollX));
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         var velocity = details.velocity.pixelsPerSecond.dx;
@@ -307,7 +332,7 @@ class _KChartWidgetState extends State<KChartWidget>
         }
         _stopAnimation();
       }
-      notifyChanged();
+      widget.controller.jumpTo(mScrollX);
     });
     aniX.addStatusListener((status) {
       if (status == AnimationStatus.completed ||
