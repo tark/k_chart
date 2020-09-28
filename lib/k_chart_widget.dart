@@ -192,7 +192,6 @@ class _KChartWidgetState extends State<KChartWidget>
   void dispose() {
     mInfoWindowStream?.close();
     _controller?.dispose();
-    widget.controller?.dispose();
     super.dispose();
   }
 
