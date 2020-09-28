@@ -213,7 +213,10 @@ class ChartPainter extends BaseChartPainter {
   @override
   void drawChart(Canvas canvas, Size size) {
     canvas.save();
-    canvas.translate(mTranslateX * scaleX - rightCoverWidth, 0.0);
+    canvas.translate(
+        mTranslateX * scaleX -
+            (mDataLen > size.width - rightCoverWidth ? rightCoverWidth : 0),
+        0.0);
     canvas.scale(scaleX, 1.0);
     for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
       KLineEntity curPoint = datas[i];
