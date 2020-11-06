@@ -95,9 +95,22 @@ class ChartStyle {
 }
 
 class ChartFormats {
-  static final money = NumberFormat('#,##0.00');
-  static final moneyShort = NumberFormat('\$#,##0');
   static final numberShort = NumberFormat('#,##0');
   static final date = DateFormat('dd MMM yyyy');
   static final dateWithTime = DateFormat('dd MMM yy  hh:mm');
+
+  static final money = [
+    NumberFormat('#,##0'),
+    NumberFormat('#,##0.0'),
+    NumberFormat('#,##0.00'),
+    NumberFormat('#,##0.000'),
+    NumberFormat('#,##0.0000'),
+    NumberFormat('#,##0.00000'),
+    NumberFormat('#,##0.000000'),
+    NumberFormat('#,##0.0000000'),
+    NumberFormat('#,##0.00000000'),
+    NumberFormat('#,##0.000000000'),
+    NumberFormat('#,##0.0000000000'),
+  ];
+
 }
