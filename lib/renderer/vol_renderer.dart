@@ -34,6 +34,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     @required this.wordVolume,
     String fontFamily,
     List<Color> bgColor,
+    int pricePrecision,
   }) : super(
           chartRect: mainRect,
           maxValue: maxValue,
@@ -42,6 +43,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
           fixedLength: fixedLength,
           fontFamily: fontFamily,
           bgColor: bgColor,
+          pricePrecision: pricePrecision,
         );
 
   @override
