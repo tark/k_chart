@@ -105,6 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Color(0xFF121128),
                   Color(0xFF121128)
                 ],
+                pricePrecision: 3,
               ),
             ),
             if (showLoading)
