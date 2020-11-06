@@ -201,12 +201,6 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
                 (i == gridRows ? tp.height + 10 : 0),
           ),
         );
-        RenderUtil.drawDashedLine(
-          canvas,
-          Offset(chartRect.width - rightCoverWidth, topPadding + rowSpace * i),
-          Offset(chartRect.width, topPadding + rowSpace * i),
-          gridPaint,
-        );
       }
     }
 
@@ -214,13 +208,6 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       canvas,
       Offset(chartRect.width - rightCoverWidth, 0),
       Offset(chartRect.width - rightCoverWidth, chartRect.height),
-      gridPaint,
-    );
-
-    RenderUtil.drawDashedLine(
-      canvas,
-      Offset(chartRect.width - gridPaint.strokeWidth / 2, 0),
-      Offset(chartRect.width - gridPaint.strokeWidth / 2, chartRect.height),
       gridPaint,
     );
   }
