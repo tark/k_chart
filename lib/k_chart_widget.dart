@@ -215,7 +215,7 @@ class _KChartWidgetState extends State<KChartWidget>
       },
       onHorizontalDragUpdate: (details) {
         if (isScale || isLongPress) return;
-        widget.controller.jumpTo((details.primaryDelta / mScaleX + mScrollX)
+        widget.controller?.jumpTo((details.primaryDelta / mScaleX + mScrollX)
             .clamp(_rightScrollingOffset, ChartPainter.maxScrollX));
       },
       onHorizontalDragEnd: (DragEndDetails details) {
@@ -338,7 +338,7 @@ class _KChartWidgetState extends State<KChartWidget>
         }
         _stopAnimation();
       }
-      widget.controller.jumpTo(mScrollX);
+      widget.controller?.jumpTo(mScrollX);
     });
     aniX.addStatusListener((status) {
       if (status == AnimationStatus.completed ||
