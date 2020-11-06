@@ -183,7 +183,7 @@ class _KChartWidgetState extends State<KChartWidget>
   }
 
   void _scrollToRightOffset() {
-    final rightScrollOffset = widget.controller.rightScrollOffset;
+    final rightScrollOffset = widget.controller?.rightScrollOffset;
     mScrollX = rightScrollOffset;
     notifyChanged();
   }
@@ -347,7 +347,7 @@ class _KChartWidgetState extends State<KChartWidget>
         notifyChanged();
       }
     });
-    _controller.forward();
+    _controller?.forward();
   }
 
   void notifyChanged() => setState(() {});
