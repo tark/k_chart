@@ -1,0 +1,1 @@
+const defaultPricePrecision = 2;
