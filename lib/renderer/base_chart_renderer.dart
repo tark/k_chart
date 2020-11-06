@@ -17,6 +17,11 @@ abstract class BaseChartRenderer<T> {
   final String fontFamily;
   final List<Color> bgColor;
 
+  // Price precision used to draw the right side text
+  // (prices near the chart). Also can be used for any prices
+  // on the chart.
+  int pricePrecision;
+
   Paint chartPaint = Paint()
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
@@ -43,6 +48,7 @@ abstract class BaseChartRenderer<T> {
     @required this.fixedLength,
     this.fontFamily,
     this.bgColor,
+    this.pricePrecision,
   }) {
     if (maxValue == minValue) {
       maxValue *= 1.5;
