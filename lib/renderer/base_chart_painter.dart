@@ -90,7 +90,7 @@ abstract class BaseChartPainter extends CustomPainter {
     final _day = 24 * _hour;
 
     if (difference < 12 * _hour) {
-      mFormats = [M, ' ', d, ', ', HH, ':', mm];
+      mFormats = [M, ' ', d, ', ', HH, ':', nn];
     } else if (difference < 7 * _day) {
       mFormats = [M, ' ', d];
     } else {
