@@ -89,6 +89,7 @@ class ChartPainter extends BaseChartPainter {
     int kdjCalcPeriod,
     int kdjMaPeriod1,
     int kdjMaPeriod2,
+    int pricePrecision,
   })  : assert(bgColor == null || bgColor.length >= 2),
         super(
           datas: datas,
@@ -108,6 +109,7 @@ class ChartPainter extends BaseChartPainter {
           kdjCalcPeriod: kdjCalcPeriod,
           kdjMaPeriod1: kdjMaPeriod1,
           kdjMaPeriod2: kdjMaPeriod2,
+          pricePrecision: pricePrecision,
         );
 
   @override
@@ -136,6 +138,7 @@ class ChartPainter extends BaseChartPainter {
       maDayList: maDayList,
       fontFamily: fontFamily,
       bgColor: bgColor,
+      pricePrecision: pricePrecision,
     );
     mVolRenderer ??= VolRenderer(
       mVolRect,
@@ -147,6 +150,7 @@ class ChartPainter extends BaseChartPainter {
       wordVolume: wordVolume,
       fontFamily: fontFamily,
       bgColor: bgColor,
+      pricePrecision: pricePrecision,
     );
     if (mSecondaryRect != null)
       mSecondaryRenderer ??= SecondaryRenderer(
@@ -166,6 +170,7 @@ class ChartPainter extends BaseChartPainter {
         kdjCalcPeriod: kdjCalcPeriod,
         kdjMaPeriod1: kdjMaPeriod1,
         kdjMaPeriod2: kdjMaPeriod2,
+        pricePrecision: pricePrecision,
       );
   }
 
@@ -288,7 +293,7 @@ class ChartPainter extends BaseChartPainter {
     KLineEntity point = getItem(index);
 
     TextPainter tp = getTextPainter(
-      ChartFormats.money.format(point.close),
+      ChartFormats.money[pricePrecision].format(point.close),
       bgColor?.elementAt(0) ?? Colors.black,
       true,
     );
@@ -440,7 +445,7 @@ class ChartPainter extends BaseChartPainter {
     }
 
     TextPainter textPaint = getTextPainter(
-      ChartFormats.money.format(point.close),
+      ChartFormats.money[pricePrecision].format(point.close),
       bgColor?.elementAt(0) ?? Colors.black,
       true,
     );
