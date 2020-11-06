@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:k_chart/constants.dart';
 import 'package:k_chart/flutter_k_chart.dart';
 
 import 'chart_style.dart';
@@ -95,6 +96,10 @@ class KChartWidget extends StatefulWidget {
   final String wordChange;
   final String wordAmount;
 
+  /// Used to format prices in different places.
+  /// For example at the right side of K-Chart
+  final int pricePrecision;
+
   KChartWidget(
     this.datas, {
     this.mainState = MainState.MA,
@@ -130,6 +135,7 @@ class KChartWidget extends StatefulWidget {
     this.kdjCalcPeriod = 9,
     this.kdjMaPeriod1 = 3,
     this.kdjMaPeriod2 = 3,
+    this.pricePrecision = defaultPricePrecision,
   }) : assert(maDayList != null);
 
   @override
@@ -277,6 +283,7 @@ class _KChartWidgetState extends State<KChartWidget>
               kdjCalcPeriod: widget.kdjCalcPeriod,
               kdjMaPeriod1: widget.kdjMaPeriod1,
               kdjMaPeriod2: widget.kdjMaPeriod2,
+              pricePrecision: widget.pricePrecision,
             ),
           ),
           _buildInfoDialog()
@@ -362,10 +369,10 @@ class _KChartWidgetState extends State<KChartWidget>
 
         infos = [
           _getDate(entity.time),
-          ChartFormats.money.format(entity.open),
-          ChartFormats.money.format(entity.high),
-          ChartFormats.money.format(entity.low),
-          ChartFormats.money.format(entity.close),
+          ChartFormats.money[widget.pricePrecision].format(entity.open),
+          ChartFormats.money[widget.pricePrecision].format(entity.high),
+          ChartFormats.money[widget.pricePrecision].format(entity.low),
+          ChartFormats.money[widget.pricePrecision].format(entity.close),
           widget.shortFormatter != null
               ? widget.shortFormatter(entity.vol.toInt())
               : ChartFormats.numberShort.format(entity.vol),
