@@ -36,6 +36,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
     this.kdjMaPeriod2,
     String fontFamily,
     List<Color> bgColor,
+    int pricePrecision,
   }) : super(
           chartRect: mainRect,
           maxValue: maxValue,
@@ -44,6 +45,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
           fixedLength: fixedLength,
           fontFamily: fontFamily,
           bgColor: bgColor,
+          pricePrecision: pricePrecision,
         );
 
   @override
