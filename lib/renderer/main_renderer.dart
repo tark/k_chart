@@ -39,6 +39,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     this.maDayList = const [5, 10, 20],
     String fontFamily,
     List<Color> bgColor,
+    pricePrecision,
   }) : super(
           chartRect: mainRect,
           maxValue: maxValue,
@@ -86,7 +87,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
               ),
             if (middle)
               TextSpan(
-                text: ChartFormats.money.format(data.bollMiddle) + '    ',
+                text: ChartFormats.money[pricePrecision].format(data.bollMiddle) + '    ',
                 style: getTextStyleBold(ChartColors.ma5Color),
               ),
             if (up)
@@ -96,7 +97,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
               ),
             if (up)
               TextSpan(
-                text: ChartFormats.money.format(data.bollUp) + '    ',
+                text: ChartFormats.money[pricePrecision].format(data.bollUp) + '    ',
                 style: getTextStyleBold(ChartColors.ma10Color),
               ),
             if (down)
@@ -106,7 +107,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
               ),
             if (down)
               TextSpan(
-                text: ChartFormats.money.format(data.bollDown),
+                text: ChartFormats.money[pricePrecision].format(data.bollDown),
                 style: getTextStyleBold(ChartColors.ma20Color),
               ),
           ],
@@ -161,21 +162,11 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 
   @override
   void drawRightText(Canvas canvas, Size size, textStyle, int gridRows) {
-    canvas.drawRect(
-      Rect.fromLTRB(
-        size.width - rightCoverWidth,
-        0,
-        size.width,
-        size.height,
-      ),
-      backgroundPaint..color = bgColor?.elementAt(0) ?? ChartColors.background,
-    );
-
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
       TextSpan span = TextSpan(
-        text: ChartFormats.moneyShort.format(value),
+        text: ChartFormats.money[pricePrecision].format(value),
         style: textStyle,
       );
       TextPainter tp = TextPainter(
@@ -454,7 +445,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           ),
         );
 
-        var text = '${ChartFormats.money.format(value)}';
+        var text = '${ChartFormats.money[pricePrecision].format(value)}';
         if (i != data.maValueList.length - 1) {
           text += '    ';
         }
