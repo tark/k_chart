@@ -48,6 +48,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           fixedLength: fixedLength,
           fontFamily: fontFamily,
           bgColor: bgColor,
+          pricePrecision: pricePrecision,
         ) {
     _contentRect = Rect.fromLTRB(
         chartRect.left,
