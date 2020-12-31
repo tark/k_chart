@@ -98,7 +98,7 @@ class DataUtil {
         ma -= dataList[i - day].close;
         e.bollMa = ma / day;
       } else {
-        e.bollMa = null;
+        e.bollMa = 0;
       }
     }
   }
